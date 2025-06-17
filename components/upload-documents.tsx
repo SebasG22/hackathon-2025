@@ -2,12 +2,14 @@
 
 import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Upload, type File, CheckCircle, AlertCircle, X, FileText, FileIcon as FilePdf, FileImage } from "lucide-react"
+import { Upload, type File, CheckCircle, AlertCircle, X, FileText, FileIcon as FilePdf, FileImage, Loader2 } from "lucide-react"
 import { useDropzone } from "react-dropzone"
 import { Progress } from "@/components/ui/progress"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { toast } from "@/components/ui/use-toast"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import { Badge } from "@/components/ui/badge"
 
 type FileWithPreview = {
   file: File
@@ -15,11 +17,75 @@ type FileWithPreview = {
   progress: number
   status: "uploading" | "complete" | "error"
   previewUrl?: string
+  processingResult?: DocumentAIResult
+}
+
+type DocumentAIResult = {
+  text: string
+  pages: Array<{
+    pageNumber: number
+    width: number
+    height: number
+    confidence: number
+  }>
+  entities: Array<{
+    type: string
+    mentionText: string
+    confidence: number
+  }>
 }
 
 export function UploadDocuments() {
   const [files, setFiles] = useState<FileWithPreview[]>([])
   const [isDragging, setIsDragging] = useState(false)
+  const [isProcessing, setIsProcessing] = useState(false)
+
+  const processDocument = async (file: File, fileId: string) => {
+    try {
+      const formData = new FormData()
+      formData.append("file", file)
+
+      const response = await fetch("/api/process-document", {
+        method: "POST",
+        body: formData,
+      })
+
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.error || "Failed to process document")
+      }
+
+      const result = await response.json()
+      
+      setFiles((prev) =>
+        prev.map((f) =>
+          f.id === fileId
+            ? { ...f, status: "complete", progress: 100, processingResult: result }
+            : f
+        )
+      )
+
+      toast({
+        title: "Document processed",
+        description: "Your document has been successfully processed.",
+      })
+    } catch (error) {
+      console.error("Error processing document:", error)
+      setFiles((prev) =>
+        prev.map((f) =>
+          f.id === fileId ? { ...f, status: "error", progress: 0 } : f
+        )
+      )
+
+      toast({
+        title: "Processing failed",
+        description: error instanceof Error ? error.message : "Failed to process document",
+        variant: "destructive",
+      })
+    } finally {
+      setIsProcessing(false)
+    }
+  }
 
   const onDrop = (acceptedFiles: File[]) => {
     const newFiles = acceptedFiles.map((file) => ({
@@ -32,28 +98,11 @@ export function UploadDocuments() {
 
     setFiles((prev) => [...prev, ...newFiles])
 
-    // Simulate upload progress for each file
+    // Process each file
     newFiles.forEach((fileWithPreview) => {
-      simulateFileUpload(fileWithPreview.id)
+      setIsProcessing(true)
+      processDocument(fileWithPreview.file, fileWithPreview.id)
     })
-  }
-
-  const simulateFileUpload = (fileId: string) => {
-    let progress = 0
-    const interval = setInterval(() => {
-      progress += Math.random() * 10
-      if (progress >= 100) {
-        progress = 100
-        clearInterval(interval)
-        setFiles((prev) => prev.map((f) => (f.id === fileId ? { ...f, progress: 100, status: "complete" } : f)))
-        toast({
-          title: "Upload complete",
-          description: "Your document has been uploaded successfully.",
-        })
-      } else {
-        setFiles((prev) => prev.map((f) => (f.id === fileId ? { ...f, progress: Math.round(progress) } : f)))
-      }
-    }, 300)
   }
 
   const removeFile = (fileId: string) => {
@@ -108,18 +157,11 @@ export function UploadDocuments() {
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
-        <motion.div
-          whileHover={{ scale: 1.01 }}
-          whileTap={{ scale: 0.99 }}
-          animate={{
-            borderColor: isDragging ? "rgb(59, 130, 246)" : "rgb(226, 232, 240)",
-            backgroundColor: isDragging ? "rgba(59, 130, 246, 0.05)" : "transparent",
-          }}
-          transition={{ duration: 0.2 }}
+        <div
+          {...getRootProps()}
           className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer flex flex-col items-center justify-center min-h-[200px] ${
             isDragActive ? "border-primary bg-primary/5" : "border-muted-foreground/25"
           }`}
-          {...getRootProps()}
         >
           <input {...getInputProps()} />
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
@@ -132,7 +174,7 @@ export function UploadDocuments() {
               Select Files
             </Button>
           </motion.div>
-        </motion.div>
+        </div>
 
         <AnimatePresence>
           {files.length > 0 && (
@@ -150,46 +192,70 @@ export function UploadDocuments() {
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, x: -10 }}
-                    className="flex items-center gap-4 p-3 rounded-lg border bg-card"
+                    className="flex flex-col gap-4 p-4 rounded-lg border bg-card"
                   >
-                    <div className="flex-shrink-0">
-                      {fileWithPreview.previewUrl ? (
-                        <div className="h-10 w-10 rounded overflow-hidden">
-                          <img
-                            src={fileWithPreview.previewUrl || "/placeholder.svg"}
-                            alt={fileWithPreview.file.name}
-                            className="h-full w-full object-cover"
-                          />
+                    <div className="flex items-center gap-4">
+                      <div className="flex-shrink-0">
+                        {fileWithPreview.previewUrl ? (
+                          <div className="h-10 w-10 rounded overflow-hidden">
+                            <img
+                              src={fileWithPreview.previewUrl}
+                              alt={fileWithPreview.file.name}
+                              className="h-full w-full object-cover"
+                            />
+                          </div>
+                        ) : (
+                          getFileIcon(fileWithPreview.file)
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium truncate">{fileWithPreview.file.name}</p>
+                        <div className="flex items-center gap-2 mt-1">
+                          <Progress value={fileWithPreview.progress} className="h-1.5" />
+                          <span className="text-xs text-muted-foreground whitespace-nowrap">
+                            {fileWithPreview.progress}%
+                          </span>
                         </div>
-                      ) : (
-                        getFileIcon(fileWithPreview.file)
-                      )}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium truncate">{fileWithPreview.file.name}</p>
-                      <div className="flex items-center gap-2 mt-1">
-                        <Progress value={fileWithPreview.progress} className="h-1.5" />
-                        <span className="text-xs text-muted-foreground whitespace-nowrap">
-                          {fileWithPreview.progress}%
-                        </span>
+                      </div>
+                      <div className="flex-shrink-0 flex items-center gap-2">
+                        {fileWithPreview.status === "uploading" && (
+                          <Loader2 className="h-5 w-5 animate-spin text-primary" />
+                        )}
+                        {fileWithPreview.status === "complete" && (
+                          <CheckCircle className="h-5 w-5 text-green-500" />
+                        )}
+                        {fileWithPreview.status === "error" && (
+                          <AlertCircle className="h-5 w-5 text-red-500" />
+                        )}
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 rounded-full"
+                          onClick={() => removeFile(fileWithPreview.id)}
+                        >
+                          <X className="h-4 w-4" />
+                          <span className="sr-only">Remove file</span>
+                        </Button>
                       </div>
                     </div>
-                    <div className="flex-shrink-0">
-                      {fileWithPreview.status === "complete" ? (
-                        <CheckCircle className="h-5 w-5 text-green-500" />
-                      ) : fileWithPreview.status === "error" ? (
-                        <AlertCircle className="h-5 w-5 text-red-500" />
-                      ) : null}
-                    </div>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8 rounded-full"
-                      onClick={() => removeFile(fileWithPreview.id)}
-                    >
-                      <X className="h-4 w-4" />
-                      <span className="sr-only">Remove file</span>
-                    </Button>
+
+                    {/* Document AI Results */}
+                    {fileWithPreview.processingResult && (
+                      <div className="mt-2 space-y-4">
+                        <div className="flex flex-wrap gap-2">
+                          {fileWithPreview.processingResult.entities.map((entity, index) => (
+                            <Badge key={index} variant="secondary" className="text-xs">
+                              {entity.type}: {entity.mentionText}
+                            </Badge>
+                          ))}
+                        </div>
+                        <ScrollArea className="h-[200px] w-full rounded-md border p-4">
+                          <pre className="text-xs whitespace-pre-wrap">
+                            {fileWithPreview.processingResult.text}
+                          </pre>
+                        </ScrollArea>
+                      </div>
+                    )}
                   </motion.div>
                 ))}
               </div>
@@ -201,7 +267,7 @@ export function UploadDocuments() {
         <Button variant="outline" onClick={() => setFiles([])}>
           Clear All
         </Button>
-        <Button disabled={files.length === 0 || files.some((f) => f.status === "uploading")}>Submit</Button>
+        <Button disabled={files.length === 0 || isProcessing}>Submit</Button>
       </CardFooter>
     </Card>
   )
