@@ -26,14 +26,13 @@ type FileWithPreview = {
   analysisResults?: any
 }
 
-type Step = "upload" | "analysis" | "ai-analysis" | "files" | "results"
+type Step = "upload" | "read-file" | "file-manager" | "ai-results"
 
 const steps = [
   { id: "upload", label: "Upload Documents", description: "Load your files" },
-  { id: "analysis", label: "Analysis", description: "AI Processing" },
-  { id: "ai-analysis", label: "AI Underwriting", description: "Cloudflare AI Analysis" },
-  { id: "files", label: "File Manager", description: "Manage extracted data" },
-  { id: "results", label: "Results", description: "Final summary" },
+  { id: "read-file", label: "Read File", description: "AI Processing" },
+  { id: "file-manager", label: "File Manager", description: "Manage extracted data" },
+  { id: "ai-results", label: "AI Underwriting Results", description: "AI Analysis Results" },
 ]
 
 export function DocumentProcessor() {
@@ -47,13 +46,11 @@ export function DocumentProcessor() {
 
   const handleNextStep = () => {
     if (currentStep === "upload") {
-      setCurrentStep("analysis")
-    } else if (currentStep === "analysis") {
-      setCurrentStep("ai-analysis")
-    } else if (currentStep === "ai-analysis") {
-      setCurrentStep("files")
-    } else if (currentStep === "files") {
-      setCurrentStep("results")
+      setCurrentStep("read-file")
+    } else if (currentStep === "read-file") {
+      setCurrentStep("file-manager")
+    } else if (currentStep === "file-manager") {
+      setCurrentStep("ai-results")
     }
   }
 
@@ -88,7 +85,6 @@ export function DocumentProcessor() {
 
   const handleRestart = () => {
     setCurrentStep("upload")
-    // Don't clear files - preserve them
     setAnalysisResults(null)
   }
 
@@ -154,7 +150,7 @@ export function DocumentProcessor() {
       return [...prevFiles, mockFileWithPreview]
     })
 
-    setCurrentStep("analysis")
+    setCurrentStep("read-file")
 
     // Create analysis results
     const missingFields = Object.entries(sampleTaxData)
@@ -247,27 +243,27 @@ export function DocumentProcessor() {
           />
         )}
 
-        {currentStep === "analysis" && (
+        {currentStep === "read-file" && (
           <StepAnalysis files={files} onNext={handleNextStep} onAnalysisComplete={handleAnalysisComplete} />
         )}
 
-        {currentStep === "ai-analysis" && (
+        {currentStep === "file-manager" && (
+          <StepFileManager
+            files={files}
+            onNext={handleNextStep}
+            onFileDataUpdate={handleFileDataUpdate}
+            onUploadNew={() => setCurrentStep("upload")}
+          />
+        )}
+
+        {currentStep === "ai-results" && (
           <AIAnalysis 
             documentData={analysisResults?.extractedData || null}
             onAnalysisComplete={(aiResults) => {
               console.log('AI Analysis completed:', aiResults);
               // You can store AI results here if needed
             }}
-            onNext={handleNextStep}
-          />
-        )}
-
-        {currentStep === "files" && (
-          <StepFileManager
-            files={files}
-            onNext={handleNextStep}
-            onFileDataUpdate={handleFileDataUpdate}
-            onUploadNew={() => setCurrentStep("upload")}
+            onRestart={handleRestart}
           />
         )}
 

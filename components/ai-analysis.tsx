@@ -20,11 +20,12 @@ interface UnderwritingAnalysis {
 interface AIAnalysisProps {
   documentData: any; // Accept any JSON structure from Document AI
   onAnalysisComplete?: (analysis: UnderwritingAnalysis) => void;
-  onNext?: () => void; // Add onNext prop for navigation
+  onRestart?: () => void;
 }
 
-export function AIAnalysis({ documentData, onAnalysisComplete, onNext }: AIAnalysisProps) {
-  const [analysis, setAnalysis] = useState<UnderwritingAnalysis | null>(null);
+export function AIAnalysis({ documentData, onAnalysisComplete, onRestart }: AIAnalysisProps) {
+  const [parsedResult, setParsedResult] = useState<any>(null);
+  const [rawResult, setRawResult] = useState<any>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -40,7 +41,8 @@ export function AIAnalysis({ documentData, onAnalysisComplete, onNext }: AIAnaly
 
     setIsAnalyzing(true);
     setError(null);
-    setAnalysis(null);
+    setParsedResult(null);
+    setRawResult(null);
 
     try {
       console.log('📡 Making API call to /api/cloudflare-ai/analyze');
@@ -61,10 +63,33 @@ export function AIAnalysis({ documentData, onAnalysisComplete, onNext }: AIAnaly
         throw new Error(`Analysis failed: ${response.statusText}`);
       }
 
-      const result = await response.json();
-      console.log('✅ API Response result:', result);
-      setAnalysis(result);
-      onAnalysisComplete?.(result);
+      let result = await response.json();
+      console.log('✅ API Response result (raw):', result);
+
+      setRawResult(result);
+      // Try to parse the response field if it's a stringified JSON
+      let parsed = null;
+      if (result && typeof result.response === 'string') {
+        try {
+          parsed = JSON.parse(result.response);
+        } catch (e) {
+          // If not JSON, maybe it's just a string
+          parsed = result.response;
+        }
+      } else if (result && typeof result.response === 'object') {
+        parsed = result.response;
+      } else if (typeof result === 'string') {
+        // If the result itself is a string, try to parse it
+        try {
+          parsed = JSON.parse(result);
+        } catch (e) {
+          parsed = result;
+        }
+      } else if (typeof result === 'object') {
+        parsed = result;
+      }
+      setParsedResult(parsed);
+      onAnalysisComplete?.(parsed);
     } catch (err) {
       console.error('❌ Error in startAnalysis:', err);
       setError(err instanceof Error ? err.message : 'Analysis failed');
@@ -105,10 +130,10 @@ export function AIAnalysis({ documentData, onAnalysisComplete, onNext }: AIAnaly
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Brain className="h-5 w-5" />
-            AI Underwriting Analysis
+            AI Underwriting Results
           </CardTitle>
           <CardDescription>
-            Analyze the document using Cloudflare AI with Llama 3.3 8B model
+            Run and review the AI model's underwriting analysis in natural language.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -118,20 +143,30 @@ export function AIAnalysis({ documentData, onAnalysisComplete, onNext }: AIAnaly
             </Alert>
           )}
 
-          <Button
-            onClick={startAnalysis}
-            disabled={isAnalyzing || !documentData}
-            className="w-full"
-          >
-            {isAnalyzing ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Analyzing...
-              </>
-            ) : (
-              'Analyze Document'
-            )}
-          </Button>
+          <div className="flex flex-col sm:flex-row gap-2">
+            <Button
+              onClick={onRestart}
+              variant="outline"
+              className="flex-1"
+              disabled={isAnalyzing}
+            >
+              Start New Evaluation
+            </Button>
+            <Button
+              onClick={startAnalysis}
+              className="flex-1"
+              disabled={isAnalyzing || !documentData}
+            >
+              {isAnalyzing ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Analyzing...
+                </>
+              ) : (
+                'Analyze Document'
+              )}
+            </Button>
+          </div>
 
           {isAnalyzing && (
             <div className="space-y-2">
@@ -142,73 +177,89 @@ export function AIAnalysis({ documentData, onAnalysisComplete, onNext }: AIAnaly
             </div>
           )}
 
-          {analysis && (
+          {/* Show parsed result if it's an object with explanation, otherwise show as string */}
+          {parsedResult && typeof parsedResult === 'object' && parsedResult.explanation ? (
             <div className="space-y-4">
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-lg">Analysis Results</CardTitle>
+                  <CardTitle className="text-lg">AI Model Results</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm font-medium">DTI Ratio</p>
-                      <p className="text-2xl font-bold">{analysis.dtiValue.toFixed(2)}%</p>
+                      <p className="text-2xl font-bold">{typeof parsedResult.dtiValue === 'number' ? parsedResult.dtiValue.toFixed(2) : parsedResult.dtiValue}%</p>
                     </div>
                     <Badge 
-                      className={`${getQualificationColor(analysis.qualification)} flex items-center gap-1`}
+                      className={`${getQualificationColor(parsedResult.qualification)} flex items-center gap-1`}
                     >
-                      {getQualificationIcon(analysis.qualification)}
-                      {analysis.qualification.replace('_', ' ')}
+                      {getQualificationIcon(parsedResult.qualification)}
+                      {parsedResult.qualification?.replace('_', ' ')}
                     </Badge>
                   </div>
 
                   <div>
-                    <p className="text-sm font-medium mb-2">Confidence</p>
-                    <Progress value={analysis.confidence * 100} className="w-full" />
-                    <p className="text-xs text-muted-foreground mt-1">
-                      {(analysis.confidence * 100).toFixed(1)}%
-                    </p>
-                  </div>
-
-                  <div>
                     <p className="text-sm font-medium mb-2">Explanation</p>
-                    <p className="text-sm text-muted-foreground">
-                      {analysis.explanation}
-                    </p>
+                    <div className="text-lg whitespace-pre-line bg-muted p-6 rounded-md">
+                      {parsedResult.explanation}
+                    </div>
                   </div>
 
-                  {analysis.riskFactors.length > 0 && (
+                  {Array.isArray(parsedResult.riskFactors) && parsedResult.riskFactors.length > 0 && (
                     <div>
                       <p className="text-sm font-medium mb-2">Risk Factors</p>
                       <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
-                        {analysis.riskFactors.map((factor, index) => (
+                        {parsedResult.riskFactors.map((factor: string, index: number) => (
                           <li key={index}>{factor}</li>
                         ))}
                       </ul>
                     </div>
                   )}
 
-                  {analysis.recommendations.length > 0 && (
+                  {Array.isArray(parsedResult.recommendations) && parsedResult.recommendations.length > 0 && (
                     <div>
                       <p className="text-sm font-medium mb-2">Recommendations</p>
                       <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
-                        {analysis.recommendations.map((recommendation, index) => (
+                        {parsedResult.recommendations.map((recommendation: string, index: number) => (
                           <li key={index}>{recommendation}</li>
                         ))}
                       </ul>
                     </div>
                   )}
-
-                  {onNext && (
-                    <div className="pt-4">
-                      <Button onClick={onNext} className="w-full">
-                        Continue to Next Step
-                      </Button>
-                    </div>
-                  )}
                 </CardContent>
               </Card>
             </div>
+          ) : null}
+
+          {/* If parsedResult is a string, show it as is */}
+          {parsedResult && typeof parsedResult === 'string' && (
+            <div className="space-y-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">AI Model Raw Output</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-lg whitespace-pre-line bg-muted p-6 rounded-md">
+                    {parsedResult}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+
+          {/* Show a warning if parsing failed and there is a response */}
+          {!parsedResult && !isAnalyzing && !error && (
+            <Alert variant="warning">
+              <AlertDescription>
+                No valid AI response to display. Please try again or check the model output.
+              </AlertDescription>
+              {rawResult && (
+                <div className="mt-2 text-xs text-muted-foreground">
+                  <strong>Debug raw result:</strong>
+                  <pre className="overflow-x-auto whitespace-pre-wrap">{JSON.stringify(rawResult, null, 2)}</pre>
+                </div>
+              )}
+            </Alert>
           )}
         </CardContent>
       </Card>

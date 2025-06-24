@@ -44,39 +44,12 @@ export async function POST(req: NextRequest) {
 }
 
 function createAnalysisPrompt(documentData: any, underwritingRules?: string) {
-  const defaultRules = `Using only the income of the occupying borrower(s) to calculate the DTI ratio, the maximum allowable DTI ratio is 43%.
 
-Use the following formula to calculate DTI:
-DTI = (Total Monthly Debt Payments / Gross Monthly Income) × 100
-
-Evaluation Criteria:
-- If DTI ≤ 43% → Borrower qualifies
-- If 43% < DTI ≤ 50% → Borrower requires further evaluation of compensating factors
-- If DTI > 50% → Borrower does not qualify`;
-
-  const rules = underwritingRules || defaultRules;
   
   // Convert the entire document data to a readable format
   const documentInfo = JSON.stringify(documentData, null, 2);
   
-  const prompt = `You are a mortgage underwriter reviewing a loan application. Your task is to determine whether the borrower qualifies based on these underwriting rules:
-
-${rules}
-
-Document Information (JSON format):
-${documentInfo}
-
-Please analyze the provided document data and provide your assessment in the following JSON format:
-{
-  "dtiValue": <calculated DTI percentage>,
-  "qualification": "<QUALIFIED|REQUIRES_REVIEW|NOT_QUALIFIED>",
-  "explanation": "<detailed explanation of the decision>",
-  "confidence": <confidence level 0-1>,
-  "riskFactors": ["<list of risk factors>"],
-  "recommendations": ["<list of recommendations>"]
-}
-
-Calculate the DTI ratio and provide your assessment based on the document data provided.`;
+  const prompt = ` Name: Test name, Monthly Debt Payments: 5000, Gross Monthly Income: 103`;
 
   return prompt;
 }
@@ -98,7 +71,39 @@ async function analyzeWithCloudflareAI(prompt: string): Promise<UnderwritingAnal
         messages: [
           {
             role: 'system',
-            content: 'You are a mortgage underwriter AI assistant. Always respond with valid JSON in the exact format requested. Do not include any additional text outside the JSON response.'
+            content: `You are a mortgage underwriter reviewing a loan application. Your task is to determine whether the borrower qualifies based on this underwriting rule:
+
+"Using only the income of the occupying borrower(s) to calculate the DTI ratio, the maximum allowable DTI ratio is 43%."
+
+Use the following formula to calculate DTI:
+DTI = (Total Monthly Debt Payments / Gross Monthly Income) × 100
+
+Total Monthly Debt Payments: Extracted from the liabilities section of the URLA (e.g., credit cards, auto loans, etc.).
+
+Gross Monthly Income: Derived from the income section of the occupying borrower(s) only.
+
+Evaluation Criteria:
+
+If DTI ≤ 43% → Borrower qualifies.
+
+If 43% < DTI ≤ 50% → Borrower requires further evaluation of compensating factors (e.g., assets, credit history).
+
+If DTI > 50% → Borrower does not qualify.
+
+Response Format (use this structure exactly):
+
+Final DTI Value: XX.XX%
+[Professional but friendly sentence explaining the result, including context on how the DTI ratio was derived.]
+
+Example Outputs:
+Final DTI Value: 39.85%
+The borrower qualifies as the DTI is within the acceptable 43% threshold. This means that their total monthly debt payments, relative to their gross monthly income, are manageable under standard underwriting guidelines.
+
+Final DTI Value: 47.25%
+The borrower's DTI exceeds the standard 43% limit but remains under 50%. This suggests that while their monthly debt payments are somewhat high relative to their income, the application may still be considered if strong compensating factors—such as excellent credit or significant cash reserves—are present.
+
+Final DTI Value: 52.10%
+The borrower does not qualify as the DTI exceeds the 50% limit established by underwriting guidelines. This indicates that the borrower's monthly debt obligations consume more than half of their gross monthly income, which may present too much risk without significant mitigating factors.`
           },
           {
             role: 'user',
@@ -166,18 +171,7 @@ async function analyzeWithCloudflareAI(prompt: string): Promise<UnderwritingAnal
       }
     }
 
-    // Validate and return the analysis
-    const finalAnalysis = {
-      dtiValue: aiResponse.dtiValue || 0,
-      qualification: aiResponse.qualification || 'REQUIRES_REVIEW',
-      explanation: aiResponse.explanation || 'Unable to determine qualification',
-      confidence: aiResponse.confidence || 0.5,
-      riskFactors: Array.isArray(aiResponse.riskFactors) ? aiResponse.riskFactors : [],
-      recommendations: Array.isArray(aiResponse.recommendations) ? aiResponse.recommendations : []
-    };
-
-    console.log('✅ Final processed analysis:', JSON.stringify(finalAnalysis, null, 2));
-    return finalAnalysis;
+    return aiResponse;
 
   } catch (error) {
     console.error('❌ Cloudflare AI analysis error:', error);
