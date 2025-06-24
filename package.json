@@ -9,6 +9,7 @@
     "start": "next start"
   },
   "dependencies": {
+    "@cloudflare/ai": "^1.2.2",
     "@emotion/is-prop-valid": "latest",
     "@google-cloud/documentai": "^9.2.0",
     "@google-cloud/storage": "^7.16.0",

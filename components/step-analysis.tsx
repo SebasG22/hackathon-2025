@@ -2,12 +2,13 @@
 
 import { useState } from "react"
 import { motion } from "framer-motion"
-import { Loader2, FileText, CheckCircle, Edit, AlertCircle } from "lucide-react"
+import { Loader2, FileText, CheckCircle, Edit, AlertCircle, Brain } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
 import { TaxFormDynamic } from "@/components/tax-form-dynamic"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { AIAnalysis } from "@/components/ai-analysis"
 
 type FileWithPreview = {
   file: File
@@ -32,9 +33,25 @@ export function StepAnalysis({ files, onNext, onAnalysisComplete }: StepAnalysis
   const [analysisProgress, setAnalysisProgress] = useState(0)
   const [extractedData, setExtractedData] = useState<any>(null)
   const [activeTab, setActiveTab] = useState("documents")
+  const [aiAnalysisResults, setAiAnalysisResults] = useState<any>(null)
 
   // Check if any file has analysis data
   const hasAnalysisData = files.some((file) => file.extractedData || file.analysisResults)
+
+  console.log('📊 StepAnalysis - hasAnalysisData:', hasAnalysisData);
+  console.log('📊 StepAnalysis - extractedData:', extractedData);
+  console.log('📊 StepAnalysis - activeTab:', activeTab);
+
+  // Convert extracted data to Document AI format for AI analysis
+  const getDocumentDataForAI = () => {
+    if (!extractedData) return null;
+    
+    console.log('🔍 getDocumentDataForAI called with extractedData:', JSON.stringify(extractedData, null, 2));
+    
+    // Simply return the extracted data as-is, without any transformation
+    // The AI will receive the raw data and analyze it accordingly
+    return extractedData;
+  };
 
   const startAnalysis = () => {
     setCurrentStep("analyzing")
@@ -177,9 +194,7 @@ export function StepAnalysis({ files, onNext, onAnalysisComplete }: StepAnalysis
             daytimePhone: "",
             identityProtectionPIN: "",
 
-            // Missing fields that will be detected
-            spouseFirstName: "",
-            spouseSocialSecurityNumber: "",
+            // Additional fields
             dependents: "",
             bankingInformation: "",
             preparerInformation: "",
@@ -225,10 +240,14 @@ export function StepAnalysis({ files, onNext, onAnalysisComplete }: StepAnalysis
     onNext()
   }
 
+  const handleAIAnalysisComplete = (analysis: any) => {
+    setAiAnalysisResults(analysis);
+  };
+
   return (
     <div className="space-y-6">
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-2">
+        <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="documents" className="flex items-center gap-2">
             <FileText className="h-4 w-4" />
             Uploaded Documents
@@ -236,6 +255,11 @@ export function StepAnalysis({ files, onNext, onAnalysisComplete }: StepAnalysis
           <TabsTrigger value="analysis" className="flex items-center gap-2" disabled={!hasAnalysisData}>
             <CheckCircle className="h-4 w-4" />
             Data Analysis
+            {!hasAnalysisData && <AlertCircle className="h-3 w-3 text-muted-foreground ml-1" />}
+          </TabsTrigger>
+          <TabsTrigger value="ai-analysis" className="flex items-center gap-2" disabled={!hasAnalysisData}>
+            <Brain className="h-4 w-4" />
+            AI Underwriting
             {!hasAnalysisData && <AlertCircle className="h-3 w-3 text-muted-foreground ml-1" />}
           </TabsTrigger>
         </TabsList>
@@ -366,6 +390,23 @@ export function StepAnalysis({ files, onNext, onAnalysisComplete }: StepAnalysis
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
               <TaxFormDynamic initialData={extractedData} onSave={handleSaveData} onNext={handleFormNext} />
             </motion.div>
+          )}
+        </TabsContent>
+
+        <TabsContent value="ai-analysis" className="space-y-6">
+          {!hasAnalysisData ? (
+            <Card>
+              <CardContent className="text-center py-8">
+                <AlertCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                <h3 className="text-lg font-medium mb-2">No Analysis Data Available</h3>
+                <p className="text-sm text-muted-foreground">Please run the document analysis first to enable AI underwriting analysis.</p>
+              </CardContent>
+            </Card>
+          ) : (
+            <AIAnalysis 
+              documentData={getDocumentDataForAI()} 
+              onAnalysisComplete={handleAIAnalysisComplete}
+            />
           )}
         </TabsContent>
       </Tabs>

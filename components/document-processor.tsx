@@ -14,6 +14,7 @@ import { StepUpload } from "@/components/step-upload"
 import { StepAnalysis } from "@/components/step-analysis"
 import { StepFileManager } from "@/components/step-file-manager"
 import { StepResults } from "@/components/step-results"
+import { AIAnalysis } from "@/components/ai-analysis"
 
 type FileWithPreview = {
   file: File
@@ -25,11 +26,12 @@ type FileWithPreview = {
   analysisResults?: any
 }
 
-type Step = "upload" | "analysis" | "files" | "results"
+type Step = "upload" | "analysis" | "ai-analysis" | "files" | "results"
 
 const steps = [
   { id: "upload", label: "Upload Documents", description: "Load your files" },
   { id: "analysis", label: "Analysis", description: "AI Processing" },
+  { id: "ai-analysis", label: "AI Underwriting", description: "Cloudflare AI Analysis" },
   { id: "files", label: "File Manager", description: "Manage extracted data" },
   { id: "results", label: "Results", description: "Final summary" },
 ]
@@ -47,6 +49,8 @@ export function DocumentProcessor() {
     if (currentStep === "upload") {
       setCurrentStep("analysis")
     } else if (currentStep === "analysis") {
+      setCurrentStep("ai-analysis")
+    } else if (currentStep === "ai-analysis") {
       setCurrentStep("files")
     } else if (currentStep === "files") {
       setCurrentStep("results")
@@ -245,6 +249,17 @@ export function DocumentProcessor() {
 
         {currentStep === "analysis" && (
           <StepAnalysis files={files} onNext={handleNextStep} onAnalysisComplete={handleAnalysisComplete} />
+        )}
+
+        {currentStep === "ai-analysis" && (
+          <AIAnalysis 
+            documentData={analysisResults?.extractedData || null}
+            onAnalysisComplete={(aiResults) => {
+              console.log('AI Analysis completed:', aiResults);
+              // You can store AI results here if needed
+            }}
+            onNext={handleNextStep}
+          />
         )}
 
         {currentStep === "files" && (
