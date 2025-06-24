@@ -130,10 +130,10 @@ export function AIAnalysis({ documentData, onAnalysisComplete, onRestart }: AIAn
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Brain className="h-5 w-5" />
-            AI Underwriting Results
+            Real Estate Underwriting Evaluation
           </CardTitle>
           <CardDescription>
-            Run and review the AI model's underwriting analysis in natural language.
+            Review the AI-powered assessment for mortgage qualification and risk analysis.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -187,19 +187,19 @@ export function AIAnalysis({ documentData, onAnalysisComplete, onRestart }: AIAn
                 <CardContent className="space-y-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium">DTI Ratio</p>
+                      <p className="text-sm font-medium">Debt-to-Income (DTI) Ratio</p>
                       <p className="text-2xl font-bold">{typeof parsedResult.dtiValue === 'number' ? parsedResult.dtiValue.toFixed(2) : parsedResult.dtiValue}%</p>
                     </div>
                     <Badge 
                       className={`${getQualificationColor(parsedResult.qualification)} flex items-center gap-1`}
                     >
                       {getQualificationIcon(parsedResult.qualification)}
-                      {parsedResult.qualification?.replace('_', ' ')}
+                      Qualification Status: {parsedResult.qualification?.replace('_', ' ')}
                     </Badge>
                   </div>
 
                   <div>
-                    <p className="text-sm font-medium mb-2">Explanation</p>
+                    <p className="text-sm font-medium mb-2">AI Assessment Summary</p>
                     <div className="text-lg whitespace-pre-line bg-muted p-6 rounded-md">
                       {parsedResult.explanation}
                     </div>
@@ -207,7 +207,7 @@ export function AIAnalysis({ documentData, onAnalysisComplete, onRestart }: AIAn
 
                   {Array.isArray(parsedResult.riskFactors) && parsedResult.riskFactors.length > 0 && (
                     <div>
-                      <p className="text-sm font-medium mb-2">Risk Factors</p>
+                      <p className="text-sm font-medium mb-2">Identified Risk Factors</p>
                       <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
                         {parsedResult.riskFactors.map((factor: string, index: number) => (
                           <li key={index}>{factor}</li>
@@ -218,7 +218,7 @@ export function AIAnalysis({ documentData, onAnalysisComplete, onRestart }: AIAn
 
                   {Array.isArray(parsedResult.recommendations) && parsedResult.recommendations.length > 0 && (
                     <div>
-                      <p className="text-sm font-medium mb-2">Recommendations</p>
+                      <p className="text-sm font-medium mb-2">AI Recommendations</p>
                       <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
                         {parsedResult.recommendations.map((recommendation: string, index: number) => (
                           <li key={index}>{recommendation}</li>
@@ -247,20 +247,7 @@ export function AIAnalysis({ documentData, onAnalysisComplete, onRestart }: AIAn
             </div>
           )}
 
-          {/* Show a warning if parsing failed and there is a response */}
-          {!parsedResult && !isAnalyzing && !error && (
-            <Alert variant="warning">
-              <AlertDescription>
-                No valid AI response to display. Please try again or check the model output.
-              </AlertDescription>
-              {rawResult && (
-                <div className="mt-2 text-xs text-muted-foreground">
-                  <strong>Debug raw result:</strong>
-                  <pre className="overflow-x-auto whitespace-pre-wrap">{JSON.stringify(rawResult, null, 2)}</pre>
-                </div>
-              )}
-            </Alert>
-          )}
+        
         </CardContent>
       </Card>
     </div>

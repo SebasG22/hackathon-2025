@@ -29,10 +29,10 @@ type FileWithPreview = {
 type Step = "upload" | "read-file" | "file-manager" | "ai-results"
 
 const steps = [
-  { id: "upload", label: "Upload Documents", description: "Load your files" },
-  { id: "read-file", label: "Read File", description: "AI Processing" },
-  { id: "file-manager", label: "File Manager", description: "Manage extracted data" },
-  { id: "ai-results", label: "AI Underwriting Results", description: "AI Analysis Results" },
+  { id: "upload", label: "Upload Documents", description: "Select and upload your real estate or mortgage documents." },
+  { id: "read-file", label: "Document Analysis", description: "AI extraction and review of document data." },
+  { id: "file-manager", label: "Data Review & Edit", description: "Review and edit extracted information before evaluation." },
+  { id: "ai-results", label: "AI Underwriting Results", description: "View the AI-powered underwriting assessment and recommendations." },
 ]
 
 export function DocumentProcessor() {
@@ -175,17 +175,18 @@ export function DocumentProcessor() {
       <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="w-full">
         <Breadcrumb>
           <BreadcrumbList>
-            {steps.map((step, index) => {
-              const isActive = step.id === currentStep
-              const isCompleted = index < getCurrentStepIndex()
-              const isAccessible = index <= getCurrentStepIndex()
+            <div className="flex flex-row items-stretch w-full gap-2">
+              {steps.map((step, index) => {
+                const isActive = step.id === currentStep
+                const isCompleted = index < getCurrentStepIndex()
+                const isAccessible = index <= getCurrentStepIndex()
 
-              return (
-                <div key={step.id} className="flex items-center">
-                  <BreadcrumbItem>
-                    <div className="flex items-center gap-2">
-                      <div
-                        className={`
+                return (
+                  <div key={step.id} className="flex items-center flex-1 min-w-0">
+                    <BreadcrumbItem className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-1 min-w-0">
+                        <div
+                          className={`
                         w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-colors cursor-pointer
                         ${
                           isCompleted
@@ -197,31 +198,32 @@ export function DocumentProcessor() {
                                 : "bg-muted text-muted-foreground cursor-not-allowed opacity-50"
                         }
                       `}
-                        onClick={() => isAccessible && handleStepClick(step.id as Step)}
-                      >
-                        {isCompleted ? "✓" : index + 1}
+                          onClick={() => isAccessible && handleStepClick(step.id as Step)}
+                        >
+                          {isCompleted ? "✓" : index + 1}
+                        </div>
+                        <div className="min-w-0">
+                          {isActive ? (
+                            <BreadcrumbPage className="font-medium truncate">{step.label}</BreadcrumbPage>
+                          ) : (
+                            <BreadcrumbLink
+                              className={`$${
+                                isAccessible ? "cursor-pointer hover:text-foreground" : "cursor-not-allowed opacity-50"
+                              }`}
+                              onClick={() => isAccessible && handleStepClick(step.id as Step)}
+                            >
+                              {step.label}
+                            </BreadcrumbLink>
+                          )}
+                          <p className="text-xs text-muted-foreground mt-1 truncate">{step.description}</p>
+                        </div>
                       </div>
-                      <div className="hidden sm:block">
-                        {isActive ? (
-                          <BreadcrumbPage className="font-medium">{step.label}</BreadcrumbPage>
-                        ) : (
-                          <BreadcrumbLink
-                            className={`${
-                              isAccessible ? "cursor-pointer hover:text-foreground" : "cursor-not-allowed opacity-50"
-                            }`}
-                            onClick={() => isAccessible && handleStepClick(step.id as Step)}
-                          >
-                            {step.label}
-                          </BreadcrumbLink>
-                        )}
-                        <p className="text-xs text-muted-foreground mt-1">{step.description}</p>
-                      </div>
-                    </div>
-                  </BreadcrumbItem>
-                  {index < steps.length - 1 && <BreadcrumbSeparator className="mx-4" />}
-                </div>
-              )
-            })}
+                    </BreadcrumbItem>
+                    {index < steps.length - 1 && <BreadcrumbSeparator className="mx-2" />}
+                  </div>
+                )
+              })}
+            </div>
           </BreadcrumbList>
         </Breadcrumb>
       </motion.div>

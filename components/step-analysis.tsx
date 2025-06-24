@@ -247,30 +247,14 @@ export function StepAnalysis({ files, onNext, onAnalysisComplete }: StepAnalysis
   return (
     <div className="space-y-6">
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="documents" className="flex items-center gap-2">
-            <FileText className="h-4 w-4" />
-            Uploaded Documents
-          </TabsTrigger>
-          <TabsTrigger value="analysis" className="flex items-center gap-2" disabled={!hasAnalysisData}>
-            <CheckCircle className="h-4 w-4" />
-            Data Analysis
-            {!hasAnalysisData && <AlertCircle className="h-3 w-3 text-muted-foreground ml-1" />}
-          </TabsTrigger>
-          <TabsTrigger value="ai-analysis" className="flex items-center gap-2" disabled={!hasAnalysisData}>
-            <Brain className="h-4 w-4" />
-            AI Underwriting
-            {!hasAnalysisData && <AlertCircle className="h-3 w-3 text-muted-foreground ml-1" />}
-          </TabsTrigger>
-        </TabsList>
 
         <TabsContent value="documents" className="space-y-6">
           {/* Files Overview */}
           <Card className="w-full">
             <CardHeader>
-              <CardTitle className="text-2xl">Tax Document Analysis</CardTitle>
+              <CardTitle className="text-2xl">Document Data Extraction</CardTitle>
               <CardDescription>
-                Process and extract information from IRS tax forms using specialized AI for tax documents.
+                AI is processing your document to extract relevant financial and personal information.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
@@ -388,6 +372,10 @@ export function StepAnalysis({ files, onNext, onAnalysisComplete }: StepAnalysis
 
           {currentStep === "editing" && extractedData && (
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+              <CardTitle className="text-lg">Review & Edit Extracted Data</CardTitle>
+              <CardDescription>
+                Ensure all information is accurate before proceeding to underwriting.
+              </CardDescription>
               <TaxFormDynamic initialData={extractedData} onSave={handleSaveData} onNext={handleFormNext} />
             </motion.div>
           )}
