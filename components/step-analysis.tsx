@@ -53,6 +53,23 @@ export function StepAnalysis({ files, onNext, onAnalysisComplete }: StepAnalysis
     return extractedData;
   };
 
+  const analyzeWithGemini = async (file: File) => {
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      const res = await fetch("/api/gemini-pdf", {
+        method: "POST",
+        body: formData,
+      });
+      const data = await res.json();
+      console.log("[Gemini PDF Analysis Result]", data);
+      return data;
+    } catch (err) {
+      console.error("[Gemini PDF Analysis Error]", err);
+      return null;
+    }
+  };
+
   const startAnalysis = () => {
     setCurrentStep("analyzing")
     setAnalysisProgress(0)
@@ -203,6 +220,11 @@ export function StepAnalysis({ files, onNext, onAnalysisComplete }: StepAnalysis
           setExtractedData(mockTaxData)
           // Switch to data analysis tab after analysis completes
           setActiveTab("analysis")
+          // Llamar a Gemini con el primer PDF subido
+          const pdfFile = files.find(f => f.file.type === "application/pdf")?.file
+          if (pdfFile) {
+            analyzeWithGemini(pdfFile)
+          }
           return 100
         }
         return prev + Math.random() * 8 + 2
