@@ -9,6 +9,7 @@ import { Progress } from "@/components/ui/progress"
 import { TaxFormDynamic } from "@/components/tax-form-dynamic"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { AIAnalysis } from "@/components/ai-analysis"
+import { AutoForm } from "@/components/auto-form"
 
 type FileWithPreview = {
   file: File
@@ -34,6 +35,7 @@ export function StepAnalysis({ files, onNext, onAnalysisComplete }: StepAnalysis
   const [extractedData, setExtractedData] = useState<any>(null)
   const [activeTab, setActiveTab] = useState("documents")
   const [aiAnalysisResults, setAiAnalysisResults] = useState<any>(null)
+  const [analysisStatus, setAnalysisStatus] = useState<null | "success" | "error">(null)
 
   // Check if any file has analysis data
   const hasAnalysisData = files.some((file) => file.extractedData || file.analysisResults)
@@ -63,8 +65,28 @@ export function StepAnalysis({ files, onNext, onAnalysisComplete }: StepAnalysis
       });
       const data = await res.json();
       console.log("[Gemini PDF Analysis Result]", data);
+
+      const match = data.gemini.match(/```json\n([\s\S]*?)```/);
+      let parsed = null;
+      if (match && match[1]) {
+        try {
+          parsed = JSON.parse(match[1]);
+        } catch (e) {
+          console.error("Error parsing Gemini JSON:", e);
+        }
+      }
+
+      if (parsed) {
+        setExtractedData(parsed);
+        setAnalysisStatus("success");
+        // Actualiza el archivo en el array de archivos para el paso 3
+        onAnalysisComplete({ extractedData: parsed });
+      } else {
+        setAnalysisStatus("error");
+      }
       return data;
     } catch (err) {
+      setAnalysisStatus("error");
       console.error("[Gemini PDF Analysis Error]", err);
       return null;
     }
@@ -371,20 +393,31 @@ export function StepAnalysis({ files, onNext, onAnalysisComplete }: StepAnalysis
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
               <Card>
                 <CardContent className="text-center py-8">
-                  <div className="mb-4 rounded-full bg-green-100 p-4 inline-block">
-                    <CheckCircle className="h-8 w-8 text-green-600" />
-                  </div>
-                  <h3 className="text-lg font-medium mb-2">Tax Analysis Complete</h3>
-                  <p className="text-sm text-muted-foreground mb-6">
-                    Form 1040 has been processed successfully. You can review and edit the extracted tax information.
-                  </p>
+                  {analysisStatus === "success" && (
+                    <>
+                      <div className="mb-4 rounded-full bg-green-100 p-4 inline-block">
+                        <CheckCircle className="h-8 w-8 text-green-600" />
+                      </div>
+                      <h3 className="text-lg font-medium mb-2">Documento procesado correctamente</h3>
+                      <p className="text-sm text-muted-foreground mb-6">
+                        El documento ha sido analizado y los datos están listos para revisión y edición.
+                      </p>
+                    </>
+                  )}
+                  {analysisStatus === "error" && (
+                    <>
+                      <div className="mb-4 rounded-full bg-red-100 p-4 inline-block">
+                        <AlertCircle className="h-8 w-8 text-red-600" />
+                      </div>
+                      <h3 className="text-lg font-medium mb-2">El análisis falló</h3>
+                      <p className="text-sm text-muted-foreground mb-6">
+                        Ocurrió un error al procesar el documento. Intenta nuevamente.
+                      </p>
+                    </>
+                  )}
                   <div className="flex gap-3 justify-center">
-                    <Button onClick={handleEditData} variant="outline" size="lg">
-                      <Edit className="h-4 w-4 mr-2" />
-                      Review and Edit
-                    </Button>
                     <Button onClick={onNext} size="lg">
-                      Continue
+                      Continuar
                     </Button>
                   </div>
                 </CardContent>
@@ -393,13 +426,24 @@ export function StepAnalysis({ files, onNext, onAnalysisComplete }: StepAnalysis
           )}
 
           {currentStep === "editing" && extractedData && (
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-              <CardTitle className="text-lg">Review & Edit Extracted Data</CardTitle>
-              <CardDescription>
-                Ensure all information is accurate before proceeding to underwriting.
-              </CardDescription>
-              <TaxFormDynamic initialData={extractedData} onSave={handleSaveData} onNext={handleFormNext} />
-            </motion.div>
+            typeof extractedData === "object" ? (
+              <AutoForm
+                data={extractedData}
+                onSave={(updatedJson) => {
+                  setExtractedData(updatedJson);
+                  // Aquí puedes avanzar al siguiente paso o guardar en backend
+                  console.log("JSON editado:", updatedJson);
+                }}
+              />
+            ) : (
+              <>
+                <CardTitle className="text-lg">Review & Edit Extracted Data</CardTitle>
+                <CardDescription>
+                  Ensure all information is accurate before proceeding to underwriting.
+                </CardDescription>
+                <TaxFormDynamic initialData={extractedData} onSave={handleSaveData} onNext={handleFormNext} />
+              </>
+            )
           )}
         </TabsContent>
 
