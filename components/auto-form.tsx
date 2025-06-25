@@ -1,5 +1,6 @@
 "use client"
 
+import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion"
 import { useState } from "react"
 
 type AutoFormProps = {
@@ -8,28 +9,23 @@ type AutoFormProps = {
   readOnly?: boolean
 }
 
-function renderField(key: string, value: any, onChange: (val: any) => void, readOnly = false) {
+function renderField(key: string, value: any, onChange: (val: any) => void, readOnly = false, path: string[] = []) {
   if (typeof value === "object" && value !== null && !Array.isArray(value)) {
-    // Renderiza subformulario para objetos
+    // Renderiza subformulario para objetos como un AccordionItem
+    const sectionId = path.concat(key).join("-")
     return (
-      <fieldset
-        style={{
-          border: "1px solid #eee",
-          padding: 16,
-          marginBottom: 20,
-          background: "#fafbfc",
-          borderRadius: 8,
-        }}
-      >
-        <legend style={{ fontWeight: 600, fontSize: 16 }}>{key}</legend>
-        <AutoFormInner data={value} onChange={onChange} readOnly={readOnly} />
-      </fieldset>
+      <AccordionItem value={sectionId} key={sectionId}>
+        <AccordionTrigger>{key}</AccordionTrigger>
+        <AccordionContent>
+          <AutoFormInner data={value} onChange={onChange} readOnly={readOnly} path={path.concat(key)} />
+        </AccordionContent>
+      </AccordionItem>
     )
   }
   if (Array.isArray(value)) {
     // Renderiza inputs para arrays
     return (
-      <div style={{ marginBottom: 20 }}>
+      <div style={{ marginBottom: 20 }} key={key}>
         <label style={{ fontWeight: 500 }}>{key}</label>
         {value.length === 0 && <div style={{ color: "#888", fontSize: 12 }}>Array vacío</div>}
         {value.map((item, idx) => (
@@ -38,7 +34,7 @@ function renderField(key: string, value: any, onChange: (val: any) => void, read
               const newArr = [...value]
               newArr[idx] = val
               onChange(newArr)
-            }, readOnly)}
+            }, readOnly, path.concat(`${key}[${idx}]`))}
           </div>
         ))}
       </div>
@@ -47,7 +43,7 @@ function renderField(key: string, value: any, onChange: (val: any) => void, read
   // Renderiza input para string, number, boolean
   const isLongString = typeof value === "string" && value.length > 60
   return (
-    <div style={{ marginBottom: 18 }}>
+    <div style={{ marginBottom: 18 }} key={key}>
       <label style={{ display: "block", fontWeight: 500, marginBottom: 4 }}>
         {key}:
       </label>
@@ -71,7 +67,7 @@ function renderField(key: string, value: any, onChange: (val: any) => void, read
   )
 }
 
-function AutoFormInner({ data, onChange, readOnly = false }: { data: any; onChange: (val: any) => void; readOnly?: boolean }) {
+function AutoFormInner({ data, onChange, readOnly = false, path = [] }: { data: any; onChange: (val: any) => void; readOnly?: boolean; path?: string[] }) {
   const [local, setLocal] = useState(data)
 
   const handleFieldChange = (key: string, val: any) => {
@@ -80,13 +76,22 @@ function AutoFormInner({ data, onChange, readOnly = false }: { data: any; onChan
     onChange(updated)
   }
 
+  // Agrupa los campos objeto para el Accordion
+  const objectKeys = Object.entries(local).filter(([_, value]) => typeof value === "object" && value !== null && !Array.isArray(value))
+  const otherKeys = Object.entries(local).filter(([_, value]) => !(typeof value === "object" && value !== null && !Array.isArray(value)))
+
   return (
     <div>
-      {Object.entries(local).map(([key, value]) => (
-        <div key={key}>
-          {renderField(key, value, (val) => handleFieldChange(key, val), readOnly)}
-        </div>
-      ))}
+      {objectKeys.length > 0 && (
+        <Accordion type="multiple" defaultValue={objectKeys.map(([key]) => path.concat(key).join("-"))}>
+          {objectKeys.map(([key, value]) =>
+            renderField(key, value, (val) => handleFieldChange(key, val), readOnly, path)
+          )}
+        </Accordion>
+      )}
+      {otherKeys.map(([key, value]) =>
+        renderField(key, value, (val) => handleFieldChange(key, val), readOnly, path)
+      )}
     </div>
   )
 }

@@ -32,6 +32,7 @@ type AnalysisStep = "ready" | "analyzing" | "complete" | "editing"
 export function StepAnalysis({ files, onNext, onAnalysisComplete }: StepAnalysisProps) {
   const [currentStep, setCurrentStep] = useState<AnalysisStep>("ready")
   const [analysisProgress, setAnalysisProgress] = useState(0)
+  const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [extractedData, setExtractedData] = useState<any>(null)
   const [activeTab, setActiveTab] = useState("documents")
   const [aiAnalysisResults, setAiAnalysisResults] = useState<any>(null)
@@ -95,163 +96,33 @@ export function StepAnalysis({ files, onNext, onAnalysisComplete }: StepAnalysis
   const startAnalysis = () => {
     setCurrentStep("analyzing")
     setAnalysisProgress(0)
+    setIsAnalyzing(true)
 
-    // Simulate analysis progress
-    const interval = setInterval(() => {
+    let interval: NodeJS.Timeout
+    interval = setInterval(() => {
       setAnalysisProgress((prev) => {
-        if (prev >= 100) {
+        if (prev >= 90) {
           clearInterval(interval)
-          setCurrentStep("complete")
-
-          // Simulate extracted data from IRS Form 1040 based on OCR
-          const mockTaxData = {
-            // Personal Information from OCR
-            firstName: "Soledad",
-            lastName: "Garcia",
-            socialSecurityNumber: "101782547",
-            spouseFirstName: "",
-            spouseLastName: "",
-            spouseSocialSecurityNumber: "",
-
-            // Address Information from OCR
-            homeAddress: "1600 Pennsylvania Avenue NW",
-            apartmentNumber: "",
-            city: "Washington",
-            state: "DC",
-            zipCode: "20500",
-            foreignCountry: "",
-            foreignProvince: "",
-            foreignPostalCode: "",
-
-            // Filing Status from OCR
-            filingStatus: "single", // Based on "Single" being checked
-            qualifyingPersonName: "",
-
-            // Presidential Election Campaign
-            presidentialCampaignYou: "",
-            presidentialCampaignSpouse: "",
-
-            // Exemptions from OCR
-            exemptionYourself: "yes", // Based on boxes checked = 1
-            exemptionSpouse: "",
-            totalExemptions: "1",
-
-            // Income Information from OCR
-            wagesSalariesTips: "91118", // From line 7
-            taxableInterest: "",
-            taxExemptInterest: "",
-            ordinaryDividends: "",
-            qualifiedDividends: "",
-            taxableRefunds: "",
-            alimonyReceived: "",
-            businessIncome: "91118", // From line 12
-            capitalGainLoss: "",
-            otherGainsLosses: "",
-            iraDistributions: "",
-            iraDistributionsTaxable: "",
-            pensionsAnnuities: "",
-            pensionsAnnuitiesTaxable: "",
-            rentalRealEstate: "1118", // From line 17
-            farmIncome: "",
-            unemploymentCompensation: "",
-            socialSecurityBenefits: "",
-            socialSecurityBenefitsTaxable: "",
-            otherIncome: "",
-            totalIncome: "92236", // From line 22
-
-            // Adjusted Gross Income from OCR
-            educatorExpenses: "",
-            businessExpenses: "",
-            healthSavingsAccount: "",
-            movingExpenses: "",
-            selfEmploymentTax: "",
-            sepSimpleQualified: "",
-            selfEmployedHealthInsurance: "",
-            penaltyEarlyWithdrawal: "",
-            alimonyPaid: "",
-            alimonyRecipientSSN: "",
-            iraDeduction: "",
-            studentLoanInterest: "",
-            tuitionFees: "",
-            domesticProductionActivities: "",
-            adjustedGrossIncome: "91118", // From line 37
-
-            // Tax and Credits from OCR (Page 2)
-            standardDeduction: "12700", // From line 40
-            itemizedDeductions: "",
-            exemptionsAmount: "8100", // From line 42
-            taxableIncome: "70318", // From line 43
-            tax: "10374", // From line 44
-            alternativeMinimumTax: "",
-            excessAdvancePremiumTax: "",
-            foreignTaxCredit: "",
-            childDependentCareCredit: "",
-            educationCredits: "",
-            retirementSavingsCredit: "",
-            childTaxCredit: "",
-            residentialEnergyCredits: "",
-            otherCredits: "",
-            totalCredits: "",
-
-            // Other Taxes
-            selfEmploymentTaxOther: "",
-            unreportedSocialSecurityMedicare: "",
-            additionalTaxIRA: "",
-            householdEmploymentTaxes: "",
-            firstTimeHomebuyerCredit: "",
-            healthCareIndividualResponsibility: "",
-            otherTaxes: "",
-            totalTax: "",
-
-            // Payments from OCR
-            federalIncomeTaxWithheld: "11478", // From line 64
-            estimatedTaxPayments: "",
-            earnedIncomeCredit: "",
-            nontaxableCombatPay: "",
-            additionalChildTaxCredit: "",
-            americanOpportunityCredit: "",
-            netPremiumTaxCredit: "",
-            amountPaidWithExtension: "",
-            excessSocialSecurityTax: "",
-            creditFederalTaxFuels: "",
-            otherPayments: "",
-            totalPayments: "",
-
-            // Refund or Amount Owed from OCR
-            overpaidAmount: "1104", // From line 75
-            refundAmount: "",
-            routingNumber: "",
-            accountType: "",
-            accountNumber: "",
-            appliedToEstimatedTax: "",
-            amountOwed: "",
-            estimatedTaxPenalty: "",
-
-            // Signature Information from OCR
-            taxpayerOccupation: "POTUS", // From signature section
-            spouseOccupation: "",
-            daytimePhone: "",
-            identityProtectionPIN: "",
-
-            // Additional fields
-            dependents: "",
-            bankingInformation: "",
-            preparerInformation: "",
-          }
-
-          setExtractedData(mockTaxData)
-          // Switch to data analysis tab after analysis completes
-          setActiveTab("analysis")
-          // Llamar a Gemini con el primer PDF subido
-          const pdfFile = files.find(f => f.file.type === "application/pdf")?.file
-          if (pdfFile) {
-            analyzeWithGemini(pdfFile)
-          }
-          return 100
+          return prev
         }
-        return prev + Math.random() * 8 + 2
+        return Math.min(prev + Math.random() * 5 + 2, 90)
       })
-    }, 300)
+    }, 200)
+
+    // Llamar a Gemini
+    const pdfFile = files.find(f => f.file.type === "application/pdf")?.file
+    if (pdfFile) {
+      analyzeWithGemini(pdfFile).then(() => {
+        clearInterval(interval)
+        setAnalysisProgress(100)
+        setIsAnalyzing(false)
+        setActiveTab("analysis")
+        setCurrentStep("complete")
+      })
+    } else {
+      clearInterval(interval)
+      setIsAnalyzing(false)
+    }
   }
 
   const handleEditData = () => {
