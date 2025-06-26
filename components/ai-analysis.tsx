@@ -139,8 +139,7 @@ export function AIAnalysis({ documentData, onAnalysisComplete, onRestart }: AIAn
           <div className="flex flex-col sm:flex-row gap-2">
             <Button
               onClick={onRestart}
-              variant="outline"
-              className="flex-1 border-loanshark-neutral-dark/20 text-loanshark-neutral-dark hover:bg-loanshark-neutral-dark hover:text-white"
+              className="flex-1 bg-loanshark-gradient hover:opacity-90 text-white border-0"
               disabled={isAnalyzing}
             >
               Start New Assessment

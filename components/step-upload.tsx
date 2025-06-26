@@ -50,7 +50,8 @@ export function StepUpload({ onFilesUploaded, onNext, onLoadSampleData, existing
   // Add this useEffect after the useState declarations
   useEffect(() => {
     onFilesUploaded(files)
-  }, [files, onFilesUploaded])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [files])
 
   const onDrop = (acceptedFiles: File[]) => {
     const newFiles = acceptedFiles.map((file) => ({
@@ -191,17 +192,7 @@ export function StepUpload({ onFilesUploaded, onNext, onLoadSampleData, existing
           </motion.div>
         </motion.div>
 
-        {onLoadSampleData && (
-          <div className="text-center">
-            <Button 
-              onClick={onLoadSampleData}
-              className="bg-loanshark-gradient hover:opacity-90 text-white border-0 transition-colors shadow-sm"
-            >
-              <Zap className="h-4 w-4 mr-2" />
-              <span className="font-semibold">Try with sample data →</span>
-            </Button>
-          </div>
-        )}
+        
 
         <AnimatePresence>
           {files.length > 0 && (
@@ -215,8 +206,7 @@ export function StepUpload({ onFilesUploaded, onNext, onLoadSampleData, existing
                 <h3 className="font-medium text-loanshark-neutral-dark">Uploaded Documents ({files.length})</h3>
                 <Button 
                   onClick={clearAllFiles}
-                  variant="outline"
-                  className="border-loanshark-neutral-dark/20 text-loanshark-neutral-dark hover:bg-loanshark-neutral-dark hover:text-white"
+                  className="bg-loanshark-gradient hover:opacity-90 text-white border-0 shadow-sm"
                 >
                   <Trash2 className="h-4 w-4 mr-2" />
                   Clear All

@@ -2,7 +2,8 @@
 
 import { useState } from "react"
 import { motion } from "framer-motion"
-import { Loader2, FileText, CheckCircle, Edit, AlertCircle, Brain, Zap, Alert, AlertDescription, AlertTriangle } from "lucide-react"
+import { Loader2, FileText, CheckCircle, Edit, AlertTriangle, Brain, Zap } from "lucide-react"
+import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
@@ -270,7 +271,7 @@ export function StepAnalysis({ files, onNext, onAnalysisComplete }: StepAnalysis
           {!hasAnalysisData && (
             <Card className="border-loanshark-neutral-light bg-white">
               <CardContent className="text-center py-8">
-                <AlertCircle className="h-12 w-12 text-loanshark-neutral-dark/40 mx-auto mb-4" />
+                <AlertTriangle className="h-12 w-12 text-loanshark-neutral-dark/40 mx-auto mb-4" />
                 <h3 className="text-lg font-medium mb-2 text-loanshark-neutral-dark">No Analysis Data Available</h3>
                 <p className="text-sm text-loanshark-neutral-dark/60">Please run the analysis first to view extracted data.</p>
               </CardContent>
@@ -344,7 +345,7 @@ export function StepAnalysis({ files, onNext, onAnalysisComplete }: StepAnalysis
           {!hasAnalysisData ? (
             <Card className="border-loanshark-neutral-light bg-white">
               <CardContent className="text-center py-8">
-                <AlertCircle className="h-12 w-12 text-loanshark-neutral-dark/40 mx-auto mb-4" />
+                <AlertTriangle className="h-12 w-12 text-loanshark-neutral-dark/40 mx-auto mb-4" />
                 <h3 className="text-lg font-medium mb-2 text-loanshark-neutral-dark">No Analysis Data Available</h3>
                 <p className="text-sm text-loanshark-neutral-dark/60">Please run the document analysis first to enable AI underwriting analysis.</p>
               </CardContent>
