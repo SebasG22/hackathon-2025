@@ -1,9 +1,11 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 body {
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
 }
 
 @layer utilities {
@@ -14,73 +16,80 @@ body {
 
 @layer base {
   :root {
+    /* LoanShark Brand Colors */
+    --loanshark-teal: #00B5A5;
+    --loanshark-navy: #003C64;
+    --loanshark-bolt: #00D1FF;
+    --loanshark-neutral-dark: #18212B;
+    --loanshark-neutral-light: #F5F8FA;
+    
     --background: 0 0% 100%;
-    --foreground: 0 0% 3.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 0 0% 3.9%;
+    --foreground: 24 33 43; /* loanshark-neutral-dark */
+    --card: 245 248 250; /* loanshark-neutral-light */
+    --card-foreground: 24 33 43; /* loanshark-neutral-dark */
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 3.9%;
-    --primary: 217 91% 60%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 0 0% 96.1%;
-    --secondary-foreground: 0 0% 9%;
-    --muted: 0 0% 96.1%;
+    --popover-foreground: 24 33 43; /* loanshark-neutral-dark */
+    --primary: 0 181 165; /* loanshark-teal */
+    --primary-foreground: 0 0% 100%;
+    --secondary: 245 248 250; /* loanshark-neutral-light */
+    --secondary-foreground: 24 33 43; /* loanshark-neutral-dark */
+    --muted: 245 248 250; /* loanshark-neutral-light */
     --muted-foreground: 0 0% 45.1%;
-    --accent: 217 100% 97%;
-    --accent-foreground: 217 91% 60%;
+    --accent: 0 209 255; /* loanshark-bolt */
+    --accent-foreground: 0 0% 100%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
     --border: 0 0% 89.8%;
     --input: 0 0% 89.8%;
-    --ring: 217 91% 60%;
-    --chart-1: 217 91% 60%;
-    --chart-2: 217 76% 50%;
-    --chart-3: 217 61% 40%;
-    --chart-4: 217 91% 70%;
-    --chart-5: 217 100% 80%;
+    --ring: 0 181 165; /* loanshark-teal */
+    --chart-1: 0 181 165; /* loanshark-teal */
+    --chart-2: 0 60 100; /* loanshark-navy */
+    --chart-3: 0 209 255; /* loanshark-bolt */
+    --chart-4: 0 181 165; /* loanshark-teal */
+    --chart-5: 0 209 255; /* loanshark-bolt */
     --radius: 0.5rem;
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 0 5.3% 26.1%;
-    --sidebar-primary: 217 91% 60%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 0 4.8% 95.9%;
-    --sidebar-accent-foreground: 0 5.9% 10%;
-    --sidebar-border: 0 13% 91%;
-    --sidebar-ring: 217 91% 60%;
+    --sidebar-background: 245 248 250; /* loanshark-neutral-light */
+    --sidebar-foreground: 24 33 43; /* loanshark-neutral-dark */
+    --sidebar-primary: 0 181 165; /* loanshark-teal */
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 0 209 255; /* loanshark-bolt */
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 0 0% 89.8%;
+    --sidebar-ring: 0 181 165; /* loanshark-teal */
   }
   .dark {
-    --background: 0 0% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 0 0% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 0 0% 3.9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 217 91% 60%;
-    --primary-foreground: 0 0% 98%;
+    --background: 24 33 43; /* loanshark-neutral-dark */
+    --foreground: 245 248 250; /* loanshark-neutral-light */
+    --card: 24 33 43; /* loanshark-neutral-dark */
+    --card-foreground: 245 248 250; /* loanshark-neutral-light */
+    --popover: 24 33 43; /* loanshark-neutral-dark */
+    --popover-foreground: 245 248 250; /* loanshark-neutral-light */
+    --primary: 0 181 165; /* loanshark-teal */
+    --primary-foreground: 0 0% 100%;
     --secondary: 0 0% 14.9%;
     --secondary-foreground: 0 0% 98%;
     --muted: 0 0% 14.9%;
     --muted-foreground: 0 0% 63.9%;
-    --accent: 217 100% 14.9%;
-    --accent-foreground: 217 91% 60%;
+    --accent: 0 209 255; /* loanshark-bolt */
+    --accent-foreground: 0 0% 100%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
     --border: 0 0% 14.9%;
     --input: 0 0% 14.9%;
-    --ring: 217 91% 60%;
-    --chart-1: 217 91% 60%;
-    --chart-2: 217 76% 50%;
-    --chart-3: 217 61% 40%;
-    --chart-4: 217 91% 70%;
-    --chart-5: 217 100% 80%;
-    --sidebar-background: 0 5.9% 10%;
-    --sidebar-foreground: 0 4.8% 95.9%;
-    --sidebar-primary: 217 91% 60%;
+    --ring: 0 181 165; /* loanshark-teal */
+    --chart-1: 0 181 165; /* loanshark-teal */
+    --chart-2: 0 60 100; /* loanshark-navy */
+    --chart-3: 0 209 255; /* loanshark-bolt */
+    --chart-4: 0 181 165; /* loanshark-teal */
+    --chart-5: 0 209 255; /* loanshark-bolt */
+    --sidebar-background: 24 33 43; /* loanshark-neutral-dark */
+    --sidebar-foreground: 245 248 250; /* loanshark-neutral-light */
+    --sidebar-primary: 0 181 165; /* loanshark-teal */
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 0 3.7% 15.9%;
-    --sidebar-accent-foreground: 0 4.8% 95.9%;
-    --sidebar-border: 0 3.7% 15.9%;
-    --sidebar-ring: 217 91% 60%;
+    --sidebar-accent: 0 209 255; /* loanshark-bolt */
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 0 0% 14.9%;
+    --sidebar-ring: 0 181 165; /* loanshark-teal */
   }
 }
 
@@ -89,6 +98,12 @@ body {
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-inter;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-inter font-bold tracking-tight;
+  }
+  .font-mono {
+    @apply font-ibm-plex-mono;
   }
 }

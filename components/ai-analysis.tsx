@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Loader2, Brain, CheckCircle, AlertTriangle, XCircle } from 'lucide-react';
+import { Loader2, Brain, CheckCircle, AlertTriangle, XCircle, Zap, Home } from 'lucide-react';
 
 interface UnderwritingAnalysis {
   dtiValue: number;
@@ -92,13 +92,13 @@ export function AIAnalysis({ documentData, onAnalysisComplete, onRestart }: AIAn
   const getQualificationColor = (qualification: string) => {
     switch (qualification) {
       case 'QUALIFIED':
-        return 'bg-green-100 text-green-800 border-green-200';
+        return 'bg-loanshark-teal/10 text-loanshark-teal border-loanshark-teal/20';
       case 'REQUIRES_REVIEW':
         return 'bg-yellow-100 text-yellow-800 border-yellow-200';
       case 'NOT_QUALIFIED':
         return 'bg-red-100 text-red-800 border-red-200';
       default:
-        return 'bg-gray-100 text-gray-800 border-gray-200';
+        return 'bg-loanshark-neutral-dark/10 text-loanshark-neutral-dark border-loanshark-neutral-dark/20';
     }
   };
 
@@ -117,14 +117,16 @@ export function AIAnalysis({ documentData, onAnalysisComplete, onRestart }: AIAn
 
   return (
     <div className="space-y-4">
-      <Card>
+      <Card className="border-loanshark-neutral-light bg-white shadow-lg">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Brain className="h-5 w-5" />
-            Real Estate Underwriting Evaluation
+          <CardTitle className="flex items-center gap-2 text-loanshark-neutral-dark">
+            <div className="p-2 rounded-full bg-loanshark-gradient">
+              <Home className="h-5 w-5 text-white" />
+            </div>
+            Mortgage Pre-Approval Assessment
           </CardTitle>
-          <CardDescription>
-            Review the AI-powered assessment for mortgage qualification and risk analysis.
+          <CardDescription className="text-loanshark-neutral-dark/70">
+            Get your instant mortgage qualification status and personalized recommendations.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -138,14 +140,14 @@ export function AIAnalysis({ documentData, onAnalysisComplete, onRestart }: AIAn
             <Button
               onClick={onRestart}
               variant="outline"
-              className="flex-1"
+              className="flex-1 border-loanshark-neutral-dark/20 text-loanshark-neutral-dark hover:bg-loanshark-neutral-dark hover:text-white"
               disabled={isAnalyzing}
             >
-              Start New Evaluation
+              Start New Assessment
             </Button>
             <Button
               onClick={startAnalysis}
-              className="flex-1"
+              className="flex-1 bg-loanshark-gradient hover:opacity-90 text-white border-0"
               disabled={isAnalyzing || !documentData}
             >
               {isAnalyzing ? (
@@ -154,7 +156,10 @@ export function AIAnalysis({ documentData, onAnalysisComplete, onRestart }: AIAn
                   Analyzing...
                 </>
               ) : (
-                'Analyze Document'
+                <>
+                  <Zap className="mr-2 h-4 w-4" />
+                  Check My Income Now
+                </>
               )}
             </Button>
           </div>
@@ -162,8 +167,8 @@ export function AIAnalysis({ documentData, onAnalysisComplete, onRestart }: AIAn
           {isAnalyzing && (
             <div className="space-y-2">
               <Progress value={undefined} className="w-full" />
-              <p className="text-sm text-muted-foreground">
-                Processing document with AI...
+              <p className="text-sm text-loanshark-neutral-dark/60">
+                Processing your financial data with AI...
               </p>
             </div>
           )}
@@ -171,35 +176,37 @@ export function AIAnalysis({ documentData, onAnalysisComplete, onRestart }: AIAn
           {/* Show parsed result if it's an object with explanation, otherwise show as string */}
           {parsedResult && typeof parsedResult === 'object' && parsedResult.explanation ? (
             <div className="space-y-4">
-              <Card>
+              <Card className="border-loanshark-neutral-light bg-loanshark-neutral-light/20">
                 <CardHeader>
-                  <CardTitle className="text-lg">AI Model Results</CardTitle>
+                  <CardTitle className="text-lg text-loanshark-neutral-dark">Your Pre-Approval Results</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium">Debt-to-Income (DTI) Ratio</p>
-                      <p className="text-2xl font-bold">{typeof parsedResult.dtiValue === 'number' ? parsedResult.dtiValue.toFixed(2) : parsedResult.dtiValue}%</p>
+                      <p className="text-sm font-medium text-loanshark-neutral-dark">Debt-to-Income (DTI) Ratio</p>
+                      <p className="text-2xl font-bold text-loanshark-neutral-dark">
+                        {typeof parsedResult.dtiValue === 'number' ? parsedResult.dtiValue.toFixed(2) : parsedResult.dtiValue}%
+                      </p>
                     </div>
                     <Badge 
                       className={`${getQualificationColor(parsedResult.qualification)} flex items-center gap-1`}
                     >
                       {getQualificationIcon(parsedResult.qualification)}
-                      Qualification Status: {parsedResult.qualification?.replace('_', ' ')}
+                      {parsedResult.qualification?.replace('_', ' ')}
                     </Badge>
                   </div>
 
                   <div>
-                    <p className="text-sm font-medium mb-2">AI Assessment Summary</p>
-                    <div className="text-lg whitespace-pre-line bg-muted p-6 rounded-md">
+                    <p className="text-sm font-medium mb-2 text-loanshark-neutral-dark">Assessment Summary</p>
+                    <div className="text-lg whitespace-pre-line bg-white p-6 rounded-md border border-loanshark-neutral-light text-loanshark-neutral-dark">
                       {parsedResult.explanation}
                     </div>
                   </div>
 
                   {Array.isArray(parsedResult.riskFactors) && parsedResult.riskFactors.length > 0 && (
                     <div>
-                      <p className="text-sm font-medium mb-2">Identified Risk Factors</p>
-                      <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
+                      <p className="text-sm font-medium mb-2 text-loanshark-neutral-dark">Risk Factors</p>
+                      <ul className="list-disc list-inside text-sm text-loanshark-neutral-dark/70 space-y-1">
                         {parsedResult.riskFactors.map((factor: string, index: number) => (
                           <li key={index}>{factor}</li>
                         ))}
@@ -209,8 +216,8 @@ export function AIAnalysis({ documentData, onAnalysisComplete, onRestart }: AIAn
 
                   {Array.isArray(parsedResult.recommendations) && parsedResult.recommendations.length > 0 && (
                     <div>
-                      <p className="text-sm font-medium mb-2">AI Recommendations</p>
-                      <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
+                      <p className="text-sm font-medium mb-2 text-loanshark-neutral-dark">Recommendations</p>
+                      <ul className="list-disc list-inside text-sm text-loanshark-neutral-dark/70 space-y-1">
                         {parsedResult.recommendations.map((recommendation: string, index: number) => (
                           <li key={index}>{recommendation}</li>
                         ))}
@@ -225,12 +232,12 @@ export function AIAnalysis({ documentData, onAnalysisComplete, onRestart }: AIAn
           {/* If parsedResult is a string, show it as is */}
           {parsedResult && typeof parsedResult === 'string' && (
             <div className="space-y-4">
-              <Card>
+              <Card className="border-loanshark-neutral-light bg-loanshark-neutral-light/20">
                 <CardHeader>
-                  <CardTitle className="text-lg">AI Model Raw Output</CardTitle>
+                  <CardTitle className="text-lg text-loanshark-neutral-dark">AI Assessment</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-lg whitespace-pre-line bg-muted p-6 rounded-md">
+                  <div className="text-lg whitespace-pre-line bg-white p-6 rounded-md border border-loanshark-neutral-light text-loanshark-neutral-dark">
                     {parsedResult}
                   </div>
                 </CardContent>

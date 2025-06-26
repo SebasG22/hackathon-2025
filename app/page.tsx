@@ -2,14 +2,31 @@ import { DocumentProcessor } from "@/components/document-processor"
 
 export default function Home() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center p-4 md:p-8 bg-gradient-to-b from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-900">
+    <main className="flex min-h-screen flex-col items-center justify-center p-4 md:p-8 bg-gradient-to-br from-loanshark-neutral-light via-white to-loanshark-neutral-light">
       <div className="w-full max-w-6xl">
         <div className="flex flex-col items-center text-center mb-8">
-          <img src="/LoanSharks.png" alt="LoanShark Logo" className="w-64 h-64 object-contain mb-2 mt-8 drop-shadow-lg" />
-          <h1 className="text-4xl font-bold text-foreground -mt-8 mb-2">Real Estate Underwriting Evaluation System</h1>
-          <p className="text-lg text-muted-foreground">
-            Upload, analyze, and assess mortgage documents with AI-powered underwriting.
+          <img src="/LoanSharksLogo.png" alt="LoanShark Logo" className="w-48 h-48 object-contain mb-4 drop-shadow-lg" />
+          <h1 className="text-5xl font-bold text-loanshark-neutral-dark mb-3 tracking-tight">
+            Get mortgage confidence in{" "}
+            <span className="bg-loanshark-gradient bg-clip-text text-transparent">under a minute</span>
+          </h1>
+          <p className="text-xl text-loanshark-neutral-dark/80 max-w-2xl leading-relaxed">
+            Pre-approval in seconds for the self-employed. Upload your documents and get instant underwriting insights.
           </p>
+          <div className="flex items-center gap-4 mt-6 text-sm text-loanshark-neutral-dark/60">
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 bg-loanshark-teal rounded-full"></div>
+              <span>Lightning-fast analysis</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 bg-loanshark-navy rounded-full"></div>
+              <span>AI-powered accuracy</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 bg-loanshark-bolt rounded-full"></div>
+              <span>Freelancer-friendly</span>
+            </div>
+          </div>
         </div>
         <DocumentProcessor />
       </div>

@@ -10,7 +10,19 @@ const config: Config = {
   ],
   theme: {
   	extend: {
+      fontFamily: {
+        'inter': ['Inter', 'Helvetica Neue', 'Arial', 'sans-serif'],
+        'ibm-plex-mono': ['IBM Plex Mono', 'monospace'],
+      },
   		colors: {
+        // LoanShark Brand Colors
+        'loanshark': {
+          'teal': '#00B5A5',
+          'navy': '#003C64',
+          'bolt': '#00D1FF',
+          'neutral-dark': '#18212B',
+          'neutral-light': '#F5F8FA',
+        },
   			background: 'hsl(var(--background))',
   			foreground: 'hsl(var(--foreground))',
   			card: {
@@ -67,6 +79,9 @@ const config: Config = {
   			md: 'calc(var(--radius) - 2px)',
   			sm: 'calc(var(--radius) - 4px)'
   		},
+      backgroundImage: {
+        'loanshark-gradient': 'linear-gradient(135deg, #00B5A5 0%, #003C64 100%)',
+      },
   		keyframes: {
   			'accordion-down': {
   				from: {
