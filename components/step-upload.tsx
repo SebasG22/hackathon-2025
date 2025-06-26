@@ -137,7 +137,6 @@ export function StepUpload({ onFilesUploaded, onNext, onLoadSampleData, existing
       toast({
         title: "File upload error",
         description: "Please check file type and size (max 10MB).",
-        variant: "destructive",
       })
     },
   })
@@ -160,18 +159,6 @@ export function StepUpload({ onFilesUploaded, onNext, onLoadSampleData, existing
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
-        {/* Easy Upload Option */}
-        <Alert>
-          <Download className="h-4 w-4" />
-          <AlertDescription className="flex items-center justify-between">
-            <span>Want to try with sample data? Load a pre-filled IRS Form 1040 example.</span>
-            <Button onClick={onLoadSampleData} variant="outline" size="sm" className="ml-4">
-              <Download className="h-4 w-4 mr-2" />
-              Load Sample Form 1040
-            </Button>
-          </AlertDescription>
-        </Alert>
-
         <motion.div
           whileHover={{ scale: 1.01 }}
           whileTap={{ scale: 0.99 }}
@@ -192,7 +179,7 @@ export function StepUpload({ onFilesUploaded, onNext, onLoadSampleData, existing
             </div>
             <h3 className="text-lg font-medium mb-1">Drop your files here</h3>
             <p className="text-sm text-muted-foreground mb-4">or click to browse</p>
-            <Button variant="outline" size="sm">
+            <Button>
               Select Files
             </Button>
           </motion.div>
@@ -208,12 +195,7 @@ export function StepUpload({ onFilesUploaded, onNext, onLoadSampleData, existing
             >
               <div className="flex items-center justify-between">
                 <h3 className="font-medium">Uploaded Files ({files.length})</h3>
-                <Button
-                  onClick={clearAllFiles}
-                  variant="outline"
-                  size="sm"
-                  className="text-destructive hover:text-destructive"
-                >
+                <Button onClick={clearAllFiles}>
                   <Trash2 className="h-4 w-4 mr-2" />
                   Clear All
                 </Button>
@@ -257,12 +239,7 @@ export function StepUpload({ onFilesUploaded, onNext, onLoadSampleData, existing
                         <AlertCircle className="h-5 w-5 text-red-500" />
                       ) : null}
                     </div>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8 rounded-full hover:bg-destructive/10 hover:text-destructive"
-                      onClick={() => removeFile(fileWithPreview.id)}
-                    >
+                    <Button onClick={() => removeFile(fileWithPreview.id)}>
                       <X className="h-4 w-4" />
                       <span className="sr-only">Remove file</span>
                     </Button>

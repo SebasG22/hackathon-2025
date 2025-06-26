@@ -29,11 +29,7 @@ export function AIAnalysis({ documentData, onAnalysisComplete, onRestart }: AIAn
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  console.log('🎯 AIAnalysis component rendered with documentData:', documentData);
-
   const startAnalysis = async () => {
-    console.log('🚀 startAnalysis called with documentData:', documentData);
-    
     if (!documentData) {
       setError('No document data available for analysis');
       return;
@@ -45,7 +41,6 @@ export function AIAnalysis({ documentData, onAnalysisComplete, onRestart }: AIAn
     setRawResult(null);
 
     try {
-      console.log('📡 Making API call to /api/cloudflare-ai/analyze');
       const response = await fetch('/api/cloudflare-ai/analyze', {
         method: 'POST',
         headers: {
@@ -57,14 +52,11 @@ export function AIAnalysis({ documentData, onAnalysisComplete, onRestart }: AIAn
         }),
       });
 
-      console.log('📡 API Response status:', response.status);
-
       if (!response.ok) {
         throw new Error(`Analysis failed: ${response.statusText}`);
       }
 
       let result = await response.json();
-      console.log('✅ API Response result (raw):', result);
 
       setRawResult(result);
       // Try to parse the response field if it's a stringified JSON
@@ -91,7 +83,6 @@ export function AIAnalysis({ documentData, onAnalysisComplete, onRestart }: AIAn
       setParsedResult(parsed);
       onAnalysisComplete?.(parsed);
     } catch (err) {
-      console.error('❌ Error in startAnalysis:', err);
       setError(err instanceof Error ? err.message : 'Analysis failed');
     } finally {
       setIsAnalyzing(false);

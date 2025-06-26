@@ -9,6 +9,7 @@ import { Progress } from "@/components/ui/progress"
 import { TaxFormDynamic } from "@/components/tax-form-dynamic"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { AIAnalysis } from "@/components/ai-analysis"
+import { AutoForm } from "@/components/auto-form"
 
 type FileWithPreview = {
   file: File
@@ -31,183 +32,90 @@ type AnalysisStep = "ready" | "analyzing" | "complete" | "editing"
 export function StepAnalysis({ files, onNext, onAnalysisComplete }: StepAnalysisProps) {
   const [currentStep, setCurrentStep] = useState<AnalysisStep>("ready")
   const [analysisProgress, setAnalysisProgress] = useState(0)
+  const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [extractedData, setExtractedData] = useState<any>(null)
   const [activeTab, setActiveTab] = useState("documents")
   const [aiAnalysisResults, setAiAnalysisResults] = useState<any>(null)
+  const [analysisStatus, setAnalysisStatus] = useState<null | "success" | "error">(null)
 
   // Check if any file has analysis data
   const hasAnalysisData = files.some((file) => file.extractedData || file.analysisResults)
 
-  console.log('📊 StepAnalysis - hasAnalysisData:', hasAnalysisData);
-  console.log('📊 StepAnalysis - extractedData:', extractedData);
-  console.log('📊 StepAnalysis - activeTab:', activeTab);
-
   // Convert extracted data to Document AI format for AI analysis
   const getDocumentDataForAI = () => {
     if (!extractedData) return null;
-    
-    console.log('🔍 getDocumentDataForAI called with extractedData:', JSON.stringify(extractedData, null, 2));
     
     // Simply return the extracted data as-is, without any transformation
     // The AI will receive the raw data and analyze it accordingly
     return extractedData;
   };
 
+  const analyzeWithGemini = async (file: File) => {
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      const res = await fetch("/api/gemini-pdf", {
+        method: "POST",
+        body: formData,
+      });
+      const data = await res.json();
+
+      const match = data.gemini.match(/```json\n([\s\S]*?)```/);
+      let parsed = null;
+      if (match && match[1]) {
+        try {
+          parsed = JSON.parse(match[1]);
+        } catch (e) {
+          console.error("Error parsing Gemini JSON:", e);
+        }
+      }
+
+      if (parsed) {
+        setExtractedData(parsed);
+        setAnalysisStatus("success");
+        // Actualiza el archivo en el array de archivos para el paso 3
+        onAnalysisComplete({ extractedData: parsed });
+      } else {
+        setAnalysisStatus("error");
+      }
+      return data;
+    } catch (err) {
+      setAnalysisStatus("error");
+      console.error("[Gemini PDF Analysis Error]", err);
+      return null;
+    }
+  };
+
   const startAnalysis = () => {
     setCurrentStep("analyzing")
     setAnalysisProgress(0)
+    setIsAnalyzing(true)
 
-    // Simulate analysis progress
-    const interval = setInterval(() => {
+    let interval: NodeJS.Timeout
+    interval = setInterval(() => {
       setAnalysisProgress((prev) => {
-        if (prev >= 100) {
+        if (prev >= 90) {
           clearInterval(interval)
-          setCurrentStep("complete")
-
-          // Simulate extracted data from IRS Form 1040 based on OCR
-          const mockTaxData = {
-            // Personal Information from OCR
-            firstName: "Soledad",
-            lastName: "Garcia",
-            socialSecurityNumber: "101782547",
-            spouseFirstName: "",
-            spouseLastName: "",
-            spouseSocialSecurityNumber: "",
-
-            // Address Information from OCR
-            homeAddress: "1600 Pennsylvania Avenue NW",
-            apartmentNumber: "",
-            city: "Washington",
-            state: "DC",
-            zipCode: "20500",
-            foreignCountry: "",
-            foreignProvince: "",
-            foreignPostalCode: "",
-
-            // Filing Status from OCR
-            filingStatus: "single", // Based on "Single" being checked
-            qualifyingPersonName: "",
-
-            // Presidential Election Campaign
-            presidentialCampaignYou: "",
-            presidentialCampaignSpouse: "",
-
-            // Exemptions from OCR
-            exemptionYourself: "yes", // Based on boxes checked = 1
-            exemptionSpouse: "",
-            totalExemptions: "1",
-
-            // Income Information from OCR
-            wagesSalariesTips: "91118", // From line 7
-            taxableInterest: "",
-            taxExemptInterest: "",
-            ordinaryDividends: "",
-            qualifiedDividends: "",
-            taxableRefunds: "",
-            alimonyReceived: "",
-            businessIncome: "91118", // From line 12
-            capitalGainLoss: "",
-            otherGainsLosses: "",
-            iraDistributions: "",
-            iraDistributionsTaxable: "",
-            pensionsAnnuities: "",
-            pensionsAnnuitiesTaxable: "",
-            rentalRealEstate: "1118", // From line 17
-            farmIncome: "",
-            unemploymentCompensation: "",
-            socialSecurityBenefits: "",
-            socialSecurityBenefitsTaxable: "",
-            otherIncome: "",
-            totalIncome: "92236", // From line 22
-
-            // Adjusted Gross Income from OCR
-            educatorExpenses: "",
-            businessExpenses: "",
-            healthSavingsAccount: "",
-            movingExpenses: "",
-            selfEmploymentTax: "",
-            sepSimpleQualified: "",
-            selfEmployedHealthInsurance: "",
-            penaltyEarlyWithdrawal: "",
-            alimonyPaid: "",
-            alimonyRecipientSSN: "",
-            iraDeduction: "",
-            studentLoanInterest: "",
-            tuitionFees: "",
-            domesticProductionActivities: "",
-            adjustedGrossIncome: "91118", // From line 37
-
-            // Tax and Credits from OCR (Page 2)
-            standardDeduction: "12700", // From line 40
-            itemizedDeductions: "",
-            exemptionsAmount: "8100", // From line 42
-            taxableIncome: "70318", // From line 43
-            tax: "10374", // From line 44
-            alternativeMinimumTax: "",
-            excessAdvancePremiumTax: "",
-            foreignTaxCredit: "",
-            childDependentCareCredit: "",
-            educationCredits: "",
-            retirementSavingsCredit: "",
-            childTaxCredit: "",
-            residentialEnergyCredits: "",
-            otherCredits: "",
-            totalCredits: "",
-
-            // Other Taxes
-            selfEmploymentTaxOther: "",
-            unreportedSocialSecurityMedicare: "",
-            additionalTaxIRA: "",
-            householdEmploymentTaxes: "",
-            firstTimeHomebuyerCredit: "",
-            healthCareIndividualResponsibility: "",
-            otherTaxes: "",
-            totalTax: "",
-
-            // Payments from OCR
-            federalIncomeTaxWithheld: "11478", // From line 64
-            estimatedTaxPayments: "",
-            earnedIncomeCredit: "",
-            nontaxableCombatPay: "",
-            additionalChildTaxCredit: "",
-            americanOpportunityCredit: "",
-            netPremiumTaxCredit: "",
-            amountPaidWithExtension: "",
-            excessSocialSecurityTax: "",
-            creditFederalTaxFuels: "",
-            otherPayments: "",
-            totalPayments: "",
-
-            // Refund or Amount Owed from OCR
-            overpaidAmount: "1104", // From line 75
-            refundAmount: "",
-            routingNumber: "",
-            accountType: "",
-            accountNumber: "",
-            appliedToEstimatedTax: "",
-            amountOwed: "",
-            estimatedTaxPenalty: "",
-
-            // Signature Information from OCR
-            taxpayerOccupation: "POTUS", // From signature section
-            spouseOccupation: "",
-            daytimePhone: "",
-            identityProtectionPIN: "",
-
-            // Additional fields
-            dependents: "",
-            bankingInformation: "",
-            preparerInformation: "",
-          }
-
-          setExtractedData(mockTaxData)
-          // Switch to data analysis tab after analysis completes
-          setActiveTab("analysis")
-          return 100
+          return prev
         }
-        return prev + Math.random() * 8 + 2
+        return Math.min(prev + Math.random() * 5 + 2, 90)
       })
-    }, 300)
+    }, 200)
+
+    // Llamar a Gemini
+    const pdfFile = files.find(f => f.file.type === "application/pdf")?.file
+    if (pdfFile) {
+      analyzeWithGemini(pdfFile).then(() => {
+        clearInterval(interval)
+        setAnalysisProgress(100)
+        setIsAnalyzing(false)
+        setActiveTab("analysis")
+        setCurrentStep("complete")
+      })
+    } else {
+      clearInterval(interval)
+      setIsAnalyzing(false)
+    }
   }
 
   const handleEditData = () => {
@@ -349,20 +257,31 @@ export function StepAnalysis({ files, onNext, onAnalysisComplete }: StepAnalysis
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
               <Card>
                 <CardContent className="text-center py-8">
-                  <div className="mb-4 rounded-full bg-green-100 p-4 inline-block">
-                    <CheckCircle className="h-8 w-8 text-green-600" />
-                  </div>
-                  <h3 className="text-lg font-medium mb-2">Tax Analysis Complete</h3>
-                  <p className="text-sm text-muted-foreground mb-6">
-                    Form 1040 has been processed successfully. You can review and edit the extracted tax information.
-                  </p>
+                  {analysisStatus === "success" && (
+                    <>
+                      <div className="mb-4 rounded-full bg-green-100 p-4 inline-block">
+                        <CheckCircle className="h-8 w-8 text-green-600" />
+                      </div>
+                      <h3 className="text-lg font-medium mb-2">Documento procesado correctamente</h3>
+                      <p className="text-sm text-muted-foreground mb-6">
+                        El documento ha sido analizado y los datos están listos para revisión y edición.
+                      </p>
+                    </>
+                  )}
+                  {analysisStatus === "error" && (
+                    <>
+                      <div className="mb-4 rounded-full bg-red-100 p-4 inline-block">
+                        <AlertCircle className="h-8 w-8 text-red-600" />
+                      </div>
+                      <h3 className="text-lg font-medium mb-2">El análisis falló</h3>
+                      <p className="text-sm text-muted-foreground mb-6">
+                        Ocurrió un error al procesar el documento. Intenta nuevamente.
+                      </p>
+                    </>
+                  )}
                   <div className="flex gap-3 justify-center">
-                    <Button onClick={handleEditData} variant="outline" size="lg">
-                      <Edit className="h-4 w-4 mr-2" />
-                      Review and Edit
-                    </Button>
                     <Button onClick={onNext} size="lg">
-                      Continue
+                      Continuar
                     </Button>
                   </div>
                 </CardContent>
@@ -371,13 +290,23 @@ export function StepAnalysis({ files, onNext, onAnalysisComplete }: StepAnalysis
           )}
 
           {currentStep === "editing" && extractedData && (
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-              <CardTitle className="text-lg">Review & Edit Extracted Data</CardTitle>
-              <CardDescription>
-                Ensure all information is accurate before proceeding to underwriting.
-              </CardDescription>
-              <TaxFormDynamic initialData={extractedData} onSave={handleSaveData} onNext={handleFormNext} />
-            </motion.div>
+            typeof extractedData === "object" ? (
+              <AutoForm
+                data={extractedData}
+                onSave={(updatedJson) => {
+                  setExtractedData(updatedJson);
+                  // Aquí puedes avanzar al siguiente paso o guardar en backend
+                }}
+              />
+            ) : (
+              <>
+                <CardTitle className="text-lg">Review & Edit Extracted Data</CardTitle>
+                <CardDescription>
+                  Ensure all information is accurate before proceeding to underwriting.
+                </CardDescription>
+                <TaxFormDynamic initialData={extractedData} onSave={handleSaveData} onNext={handleFormNext} />
+              </>
+            )
           )}
         </TabsContent>
 

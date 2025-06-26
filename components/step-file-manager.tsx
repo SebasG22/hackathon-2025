@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button"
 import { TaxFormDynamic } from "@/components/tax-form-dynamic"
 import { Badge } from "@/components/ui/badge"
+import { AutoForm } from "@/components/auto-form"
 
 type FileWithPreview = {
   file: File
@@ -60,11 +61,6 @@ export function StepFileManager({ files, onNext, onFileDataUpdate, onUploadNew }
     }
 
     return summary.length > 0 ? summary.join(" • ") : "Data extracted"
-  }
-
-  const getMissingFieldsCount = (data: any) => {
-    if (!data) return 0
-    return Object.entries(data).filter(([key, value]) => !value || value === "").length
   }
 
   return (
@@ -128,14 +124,6 @@ export function StepFileManager({ files, onNext, onFileDataUpdate, onUploadNew }
                           <span className="text-xs text-green-600">Data extracted</span>
                         </div>
                         <p className="text-xs text-muted-foreground truncate">{getDataSummary(file.extractedData)}</p>
-                        {getMissingFieldsCount(file.extractedData) > 0 && (
-                          <div className="flex items-center gap-1 mt-1">
-                            <AlertTriangle className="h-3 w-3 text-yellow-500" />
-                            <span className="text-xs text-yellow-600">
-                              {getMissingFieldsCount(file.extractedData)} missing fields
-                            </span>
-                          </div>
-                        )}
                       </div>
                     ) : (
                       <div className="mt-2">
@@ -186,50 +174,39 @@ export function StepFileManager({ files, onNext, onFileDataUpdate, onUploadNew }
             <CardContent>
               {selectedFile.extractedData ? (
                 viewMode === "edit" ? (
-                  <TaxFormDynamic
-                    initialData={selectedFile.extractedData}
-                    onSave={handleSaveFileData}
-                    onNext={() => setViewMode("view")}
-                  />
+                  typeof selectedFile.extractedData === "object" ? (
+                    <AutoForm
+                      data={selectedFile.extractedData}
+                      onSave={(updatedJson) => {
+                        handleSaveFileData(updatedJson)
+                        setViewMode("view")
+                      }}
+                    />
+                  ) : (
+                    <TaxFormDynamic
+                      initialData={selectedFile.extractedData}
+                      onSave={handleSaveFileData}
+                      onNext={() => setViewMode("view")}
+                    />
+                  )
                 ) : (
-                  <div className="space-y-6">
-                    {/* Data Summary View */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                      {Object.entries(selectedFile.extractedData)
-                        .filter(([key, value]) => value && value !== "")
-                        .slice(0, 12) // Show first 12 fields
-                        .map(([key, value]) => (
-                          <div key={key} className="p-3 rounded-lg border bg-card/50">
-                            <div className="flex items-start gap-2">
-                              <div className="p-1 rounded bg-primary/10">
-                                {key.includes("name") || key.includes("Name") ? (
-                                  <User className="h-3 w-3 text-primary" />
-                                ) : key.includes("income") || key.includes("tax") || key.includes("amount") ? (
-                                  <DollarSign className="h-3 w-3 text-primary" />
-                                ) : (
-                                  <FileText className="h-3 w-3 text-primary" />
-                                )}
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <p className="text-xs font-medium text-muted-foreground capitalize">
-                                  {key.replace(/([A-Z])/g, " $1").trim()}
-                                </p>
-                                <p className="text-sm font-medium truncate">{value as string}</p>
-                              </div>
+                  typeof selectedFile.extractedData === "object" ? (
+                    <AutoForm data={selectedFile.extractedData} readOnly />
+                  ) : (
+                    <div className="space-y-6">
+                      {/* Data Summary View */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {Object.entries(selectedFile.extractedData)
+                          .filter(([key, value]) => value && value !== "")
+                          .slice(0, 12)
+                          .map(([key, value]) => (
+                            <div key={key} className="p-2 border rounded">
+                              <span className="font-semibold">{key}:</span> {JSON.stringify(value)}
                             </div>
-                          </div>
-                        ))}
-                    </div>
-
-                    {Object.entries(selectedFile.extractedData).filter(([key, value]) => value && value !== "").length >
-                      12 && (
-                      <div className="text-center">
-                        <Button variant="outline" onClick={() => setViewMode("edit")}>
-                          View All Fields
-                        </Button>
+                          ))}
                       </div>
-                    )}
-                  </div>
+                    </div>
+                  )
                 )
               ) : (
                 <div className="text-center py-8">
