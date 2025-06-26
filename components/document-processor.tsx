@@ -260,7 +260,12 @@ export function DocumentProcessor() {
 
         {currentStep === "ai-results" && (
           <AIAnalysis 
-            documentData={analysisResults?.extractedData || null}
+            documentData={(() => {
+              // Busca el archivo procesado más reciente con extractedData
+              const fileWithData = files.find(f => f.status === "complete" && f.extractedData) || files.find(f => f.extractedData);
+              console.log("[Paso 4] Data enviada a Cloudflare:", fileWithData?.extractedData);
+              return fileWithData?.extractedData || null;
+            })()}
             onAnalysisComplete={(aiResults) => {
               console.log('AI Analysis completed:', aiResults);
               // You can store AI results here if needed

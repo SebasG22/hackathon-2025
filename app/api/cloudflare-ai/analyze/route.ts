@@ -44,12 +44,20 @@ export async function POST(req: NextRequest) {
 }
 
 function createAnalysisPrompt(documentData: any, underwritingRules?: string) {
+  // Show the data received in the console
+  console.log("🟢 Data received from step 3:", documentData);
 
-  
-  // Convert the entire document data to a readable format
+  // Convert the data to a readable string
   const documentInfo = JSON.stringify(documentData, null, 2);
-  
-  const prompt = ` Name: Test name, Monthly Debt Payments: 5000, Gross Monthly Income: 103`;
+
+  // Build the prompt in English using the real data
+  const prompt = `
+  Analyze the following document information for mortgage underwriting evaluation:
+  ${documentInfo}
+
+  ${underwritingRules ? `Underwriting rules: ${underwritingRules}` : ""}
+  Return the analysis in structured JSON format.
+  `;
 
   return prompt;
 }
@@ -60,10 +68,10 @@ async function analyzeWithCloudflareAI(prompt: string): Promise<UnderwritingAnal
     
     // For Next.js API routes, we need to use the Cloudflare AI API directly
     // since we don't have access to the native binding
-    const response = await fetch(`https://api.cloudflare.com/client/v4/accounts/${process.env.CLOUDFLARE_ACCOUNT_ID}/ai/run/@hf/meta-llama/meta-llama-3-8b-instruct`, {
+    const response = await fetch(`https://api.cloudflare.com/client/v4/accounts/843e8e3c6696126808bce5d6f3271bcf/ai/run/@hf/meta-llama/meta-llama-3-8b-instruct`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${process.env.CLOUDFLARE_API_TOKEN}`
+        'Authorization': `Bearer 3aU5vpANAeMLt6gjc3LLd1g8E73lHlkUziqDbnXh`
 ,
         'Content-Type': 'application/json',
       },
