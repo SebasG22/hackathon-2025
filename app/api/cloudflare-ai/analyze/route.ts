@@ -13,10 +13,10 @@ interface UnderwritingAnalysis {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { documentData, underwritingRules } = body;
+    const { documentData } = body;
 
     console.log('🔍 AI Analysis Request - Document Data:', JSON.stringify(documentData, null, 2));
-    console.log('🔍 AI Analysis Request - Underwriting Rules:', underwritingRules);
+
 
     if (!documentData) {
       return NextResponse.json(
@@ -26,7 +26,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Create the prompt for the AI analysis
-    const prompt = createAnalysisPrompt(documentData, underwritingRules);
+    const prompt = createAnalysisPrompt(documentData);
     console.log('📝 Generated Prompt:', prompt);
 
     // Call Cloudflare AI
@@ -43,22 +43,13 @@ export async function POST(req: NextRequest) {
   }
 }
 
-function createAnalysisPrompt(documentData: any, underwritingRules?: string) {
-  // Show the data received in the console
-  console.log("🟢 Data received from step 3:", documentData);
-
-  // Convert the data to a readable string
+function createAnalysisPrompt(documentData: any) {
   const documentInfo = JSON.stringify(documentData, null, 2);
-
-  // Build the prompt in English using the real data
   const prompt = `
   Analyze the following document information for mortgage underwriting evaluation:
   ${documentInfo}
 
-  ${underwritingRules ? `Underwriting rules: ${underwritingRules}` : ""}
-  Return the analysis in structured JSON format.
   `;
-
   return prompt;
 }
 

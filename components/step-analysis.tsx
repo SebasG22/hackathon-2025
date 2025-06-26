@@ -41,15 +41,9 @@ export function StepAnalysis({ files, onNext, onAnalysisComplete }: StepAnalysis
   // Check if any file has analysis data
   const hasAnalysisData = files.some((file) => file.extractedData || file.analysisResults)
 
-  console.log('📊 StepAnalysis - hasAnalysisData:', hasAnalysisData);
-  console.log('📊 StepAnalysis - extractedData:', extractedData);
-  console.log('📊 StepAnalysis - activeTab:', activeTab);
-
   // Convert extracted data to Document AI format for AI analysis
   const getDocumentDataForAI = () => {
     if (!extractedData) return null;
-    
-    console.log('🔍 getDocumentDataForAI called with extractedData:', JSON.stringify(extractedData, null, 2));
     
     // Simply return the extracted data as-is, without any transformation
     // The AI will receive the raw data and analyze it accordingly
@@ -65,7 +59,6 @@ export function StepAnalysis({ files, onNext, onAnalysisComplete }: StepAnalysis
         body: formData,
       });
       const data = await res.json();
-      console.log("[Gemini PDF Analysis Result]", data);
 
       const match = data.gemini.match(/```json\n([\s\S]*?)```/);
       let parsed = null;
@@ -303,7 +296,6 @@ export function StepAnalysis({ files, onNext, onAnalysisComplete }: StepAnalysis
                 onSave={(updatedJson) => {
                   setExtractedData(updatedJson);
                   // Aquí puedes avanzar al siguiente paso o guardar en backend
-                  console.log("JSON editado:", updatedJson);
                 }}
               />
             ) : (
