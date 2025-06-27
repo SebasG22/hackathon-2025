@@ -6,7 +6,7 @@ const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 export async function POST(req: NextRequest) {
   try {
     if (!GEMINI_API_KEY) {
-      return NextResponse.json({ error: "GEMINI_API_KEY is not set in environment" }, { status: 500 });
+      return NextResponse.json({ error: "GEMINI_API_KEY is not set in environment." }, { status: 500 });
     }
 
     const formData = await req.formData();
