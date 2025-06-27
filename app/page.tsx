@@ -5,12 +5,6 @@ export default function Home() {
     <main className="flex min-h-screen flex-col items-center justify-center p-4 md:p-8 bg-gradient-to-b from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-900">
       <div className="w-full max-w-6xl">
         <div className="flex flex-col items-center text-center mb-8">
-<<<<<<< Updated upstream
-          <img src="/LoanSharks.png" alt="LoanShark Logo" className="w-64 h-64 object-contain mb-2 mt-8 drop-shadow-lg" />
-          <h1 className="text-4xl font-bold text-foreground -mt-8 mb-2">Real Estate Underwriting Evaluation System</h1>
-          <p className="text-lg text-muted-foreground">
-            Upload, analyze, and assess mortgage documents with AI-powered underwriting.
-=======
           <img src="/LoanSharksLogo.png" alt="LoanShark Logo" className="w-48 h-48 object-contain drop-shadow-lg" />
           <h2 className="text-6xl font-extrabold bg-loanshark-gradient bg-clip-text text-transparent mb-6 tracking-tight" style={{ fontFamily: 'Inter, Helvetica Neue, Arial, sans-serif' }}>
             LoanShark IA
@@ -21,7 +15,6 @@ export default function Home() {
           </h1>
           <p className="text-xl text-loanshark-neutral-dark/80 max-w-2xl leading-relaxed">
             Pre-approval in seconds for the self-employed. Upload your documents and get instant underwriting insights.
->>>>>>> Stashed changes
           </p>
         </div>
         <DocumentProcessor />
