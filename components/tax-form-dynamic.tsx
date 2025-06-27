@@ -693,54 +693,53 @@ export function TaxFormDynamic({ initialData, onSave, onNext }: TaxFormDynamicPr
   }
 
   return (
-    <Card className="w-full">
-      <CardHeader>
-        <CardTitle className="text-2xl">Form 1040 - Tax Return 2017</CardTitle>
-        <CardDescription>
-          Review and modify information extracted from IRS Form 1040. Complete all required fields for your tax return.
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-            {taxFieldSections.map((section, sectionIndex) => {
-              const SectionIcon = section.icon
-              return (
-                <motion.div
-                  key={section.title}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: sectionIndex * 0.1 }}
-                  className="space-y-4"
-                >
-                  <div className="flex items-center gap-2 pb-2 border-b">
-                    <SectionIcon className="h-5 w-5 text-primary" />
-                    <h3 className="text-lg font-semibold">{section.title}</h3>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {section.fields.map((field, fieldIndex) => {
-                      const Icon = field.icon
-                      return (
-                        <motion.div
-                          key={field.name}
-                          initial={{ opacity: 0, y: 10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: sectionIndex * 0.1 + fieldIndex * 0.05 }}
-                        >
+    <div className="space-y-6">
+      <Card className="border-loanshark-neutral-light bg-white shadow-lg">
+        <CardHeader>
+          <CardTitle className="text-2xl text-loanshark-neutral-dark">Form 1040 - Tax Return 2017</CardTitle>
+          <CardDescription className="text-loanshark-neutral-dark/70">
+            Review and edit the extracted tax information. All fields marked with * are required.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+              {taxFieldSections.map((section, sectionIndex) => {
+                const SectionIcon = section.icon
+                return (
+                  <motion.div
+                    key={section.title}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: sectionIndex * 0.1 }}
+                    className="space-y-4"
+                  >
+                    <div className="flex items-center gap-2 pb-2 border-b border-loanshark-neutral-light">
+                      <SectionIcon className="h-5 w-5 text-loanshark-teal" />
+                      <h3 className="text-lg font-semibold text-loanshark-neutral-dark">{section.title}</h3>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {section.fields.map((field, fieldIndex) => {
+                        const Icon = field.icon
+                        return (
                           <FormField
+                            key={field.name}
                             control={form.control}
-                            name={field.name}
+                            name={field.name as keyof TaxFormData}
                             render={({ field: formField }) => (
                               <FormItem>
-                                <FormLabel className="flex items-center gap-2">
-                                  <Icon className="h-4 w-4 text-primary" />
-                                  {field.label}
+                                <FormLabel className="text-loanshark-neutral-dark">
+                                  <div className="flex items-center gap-2">
+                                    <Icon className="h-4 w-4 text-loanshark-teal" />
+                                    {field.label}
+                                    {field.required && <span className="text-red-500">*</span>}
+                                  </div>
                                 </FormLabel>
                                 <FormControl>
                                   {field.type === "select" ? (
-                                    <Select onValueChange={formField.onChange} value={formField.value || ""}>
-                                      <SelectTrigger>
-                                        <SelectValue placeholder={`Select ${field.label.toLowerCase()}`} />
+                                    <Select onValueChange={formField.onChange} defaultValue={formField.value}>
+                                      <SelectTrigger className="border-loanshark-neutral-light">
+                                        <SelectValue placeholder={field.placeholder} />
                                       </SelectTrigger>
                                       <SelectContent>
                                         {field.options?.map((option) => (
@@ -752,47 +751,54 @@ export function TaxFormDynamic({ initialData, onSave, onNext }: TaxFormDynamicPr
                                     </Select>
                                   ) : (
                                     <Input
-                                      type={field.inputType || "text"}
-                                      placeholder={field.placeholder}
                                       {...formField}
+                                      type={field.type}
+                                      placeholder={field.placeholder}
+                                      className="border-loanshark-neutral-light"
                                     />
                                   )}
                                 </FormControl>
-                                <FormDescription className="text-xs">{field.description}</FormDescription>
+                                <FormDescription className="text-xs text-loanshark-neutral-dark/60">{field.description}</FormDescription>
                                 <FormMessage />
                               </FormItem>
                             )}
                           />
-                        </motion.div>
-                      )
-                    })}
-                  </div>
-                </motion.div>
-              )
-            })}
+                        )
+                      })}
+                    </div>
+                  </motion.div>
+                )
+              })}
 
-            <div className="flex flex-col sm:flex-row gap-3 pt-6 border-t">
-              <Button type="button" variant="outline" onClick={resetForm} className="flex-1">
-                <RefreshCw className="h-4 w-4 mr-2" />
-                Reset
-              </Button>
-              <Button type="submit" disabled={isLoading} className="flex-1">
-                {isLoading ? (
-                  <>
-                    <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
-                    Saving...
-                  </>
-                ) : (
-                  <>
-                    <Save className="h-4 w-4 mr-2" />
-                    Save and Continue
-                  </>
-                )}
-              </Button>
-            </div>
-          </form>
-        </Form>
-      </CardContent>
-    </Card>
+              <div className="flex flex-col sm:flex-row gap-3 pt-6 border-t border-loanshark-neutral-light">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={resetForm}
+                  className="border-loanshark-neutral-dark/20 text-loanshark-neutral-dark hover:bg-loanshark-neutral-dark hover:text-white"
+                >
+                  <RefreshCw className="h-4 w-4 mr-2" />
+                  Reset Form
+                </Button>
+                <Button
+                  type="submit"
+                  className="bg-loanshark-gradient hover:opacity-90 text-white border-0"
+                >
+                  <Save className="h-4 w-4 mr-2" />
+                  Save Changes
+                </Button>
+                <Button
+                  type="button"
+                  onClick={onNext}
+                  className="bg-loanshark-gradient hover:opacity-90 text-white border-0"
+                >
+                  Continue
+                </Button>
+              </div>
+            </form>
+          </Form>
+        </CardContent>
+      </Card>
+    </div>
   )
 }

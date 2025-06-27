@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { motion } from "framer-motion"
-import { FileText, Edit, Eye, CheckCircle, AlertTriangle, User, DollarSign } from "lucide-react"
+import { FileText, Edit, Eye, CheckCircle, AlertTriangle, User, DollarSign, FileCheck } from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { TaxFormDynamic } from "@/components/tax-form-dynamic"
@@ -41,9 +41,9 @@ export function StepFileManager({ files, onNext, onFileDataUpdate, onUploadNew }
   }
 
   const getFileIcon = (file: File) => {
-    if (file.type.startsWith("image/")) return <FileText className="h-6 w-6 text-blue-500" />
-    if (file.type === "application/pdf") return <FileText className="h-6 w-6 text-red-500" />
-    return <FileText className="h-6 w-6 text-amber-500" />
+    if (file.type.startsWith("image/")) return <FileText className="h-6 w-6 text-loanshark-bolt" />
+    if (file.type === "application/pdf") return <FileText className="h-6 w-6 text-loanshark-teal" />
+    return <FileText className="h-6 w-6 text-loanshark-navy" />
   }
 
   const getDataSummary = (data: any) => {
@@ -65,20 +65,20 @@ export function StepFileManager({ files, onNext, onFileDataUpdate, onUploadNew }
 
   return (
     <div className="space-y-6">
-      <Card className="w-full">
+      <Card className="w-full border-loanshark-neutral-light bg-white shadow-lg">
         <CardHeader>
-          <CardTitle className="text-2xl">File Manager</CardTitle>
-          <CardDescription>
-            Manage extracted data from your uploaded documents. Select a file to view or edit its information.
+          <CardTitle className="text-2xl text-loanshark-neutral-dark">Review Your Data</CardTitle>
+          <CardDescription className="text-loanshark-neutral-dark/70">
+            Review and edit the extracted information from your tax documents before underwriting.
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex justify-between items-center mb-6">
             <div className="flex items-center gap-4">
-              <Badge variant="outline" className="text-sm">
-                {files.length} Total Files
+              <Badge variant="outline" className="text-sm border-loanshark-teal text-loanshark-teal">
+                {files.length} Documents
               </Badge>
-              <Badge variant="outline" className="text-sm">
+              <Badge variant="outline" className="text-sm border-loanshark-teal text-loanshark-teal">
                 {filesWithData.length} Processed
               </Badge>
             </div>
@@ -93,8 +93,8 @@ export function StepFileManager({ files, onNext, onFileDataUpdate, onUploadNew }
                 whileHover={{ scale: 1.02 }}
                 className={`p-4 rounded-lg border cursor-pointer transition-all ${
                   selectedFileId === file.id
-                    ? "border-primary bg-primary/5"
-                    : "border-border bg-card hover:border-primary/50"
+                    ? "border-loanshark-teal bg-loanshark-teal/5"
+                    : "border-loanshark-neutral-light bg-loanshark-neutral-light/30 hover:border-loanshark-teal/50"
                 }`}
                 onClick={() => setSelectedFileId(file.id)}
               >
@@ -109,25 +109,25 @@ export function StepFileManager({ files, onNext, onFileDataUpdate, onUploadNew }
                         />
                       </div>
                     ) : (
-                      <div className="h-12 w-12 rounded bg-primary/10 flex items-center justify-center">
+                      <div className="h-12 w-12 rounded bg-loanshark-teal/10 flex items-center justify-center">
                         {getFileIcon(file.file)}
                       </div>
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium truncate">{file.file.name}</p>
-                    <p className="text-xs text-muted-foreground">{(file.file.size / 1024 / 1024).toFixed(2)} MB</p>
+                    <p className="text-sm font-medium truncate text-loanshark-neutral-dark">{file.file.name}</p>
+                    <p className="text-xs text-loanshark-neutral-dark/60">{(file.file.size / 1024 / 1024).toFixed(2)} MB</p>
                     {file.extractedData ? (
                       <div className="mt-2">
                         <div className="flex items-center gap-1 mb-1">
-                          <CheckCircle className="h-3 w-3 text-green-500" />
-                          <span className="text-xs text-green-600">Data extracted</span>
+                          <CheckCircle className="h-3 w-3 text-loanshark-teal" />
+                          <span className="text-xs text-loanshark-teal">Data extracted</span>
                         </div>
-                        <p className="text-xs text-muted-foreground truncate">{getDataSummary(file.extractedData)}</p>
+                        <p className="text-xs text-loanshark-neutral-dark/70 truncate">{getDataSummary(file.extractedData)}</p>
                       </div>
                     ) : (
                       <div className="mt-2">
-                        <span className="text-xs text-muted-foreground">No data extracted</span>
+                        <span className="text-xs text-loanshark-neutral-dark/60">No data extracted</span>
                       </div>
                     )}
                   </div>
@@ -140,12 +140,12 @@ export function StepFileManager({ files, onNext, onFileDataUpdate, onUploadNew }
 
       {selectedFile && (
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
-          <Card>
+          <Card className="border-loanshark-neutral-light bg-white shadow-lg">
             <CardHeader>
               <div className="flex items-center justify-between">
                 <div>
-                  <CardTitle className="text-xl">{selectedFile.file.name}</CardTitle>
-                  <CardDescription>
+                  <CardTitle className="text-xl text-loanshark-neutral-dark">{selectedFile.file.name}</CardTitle>
+                  <CardDescription className="text-loanshark-neutral-dark/70">
                     {selectedFile.extractedData ? "View and edit extracted information" : "No data available"}
                   </CardDescription>
                 </div>
@@ -154,6 +154,7 @@ export function StepFileManager({ files, onNext, onFileDataUpdate, onUploadNew }
                     <Button
                       variant={viewMode === "view" ? "default" : "outline"}
                       size="sm"
+                      className={viewMode === "view" ? "bg-loanshark-gradient hover:opacity-90 text-white border-0" : "border-loanshark-neutral-dark/20 text-loanshark-neutral-dark hover:bg-loanshark-neutral-dark hover:text-white"}
                       onClick={() => setViewMode("view")}
                     >
                       <Eye className="h-4 w-4 mr-2" />
@@ -162,6 +163,7 @@ export function StepFileManager({ files, onNext, onFileDataUpdate, onUploadNew }
                     <Button
                       variant={viewMode === "edit" ? "default" : "outline"}
                       size="sm"
+                      className={viewMode === "edit" ? "bg-loanshark-gradient hover:opacity-90 text-white border-0" : "border-loanshark-neutral-dark/20 text-loanshark-neutral-dark hover:bg-loanshark-neutral-dark hover:text-white"}
                       onClick={() => setViewMode("edit")}
                     >
                       <Edit className="h-4 w-4 mr-2" />
@@ -200,8 +202,9 @@ export function StepFileManager({ files, onNext, onFileDataUpdate, onUploadNew }
                           .filter(([key, value]) => value && value !== "")
                           .slice(0, 12)
                           .map(([key, value]) => (
-                            <div key={key} className="p-2 border rounded">
-                              <span className="font-semibold">{key}:</span> {JSON.stringify(value)}
+                            <div key={key} className="p-3 border border-loanshark-neutral-light rounded-lg bg-loanshark-neutral-light/20">
+                              <span className="font-semibold text-loanshark-neutral-dark">{key}:</span> 
+                              <span className="text-loanshark-neutral-dark/70 ml-1">{JSON.stringify(value)}</span>
                             </div>
                           ))}
                       </div>
@@ -210,10 +213,10 @@ export function StepFileManager({ files, onNext, onFileDataUpdate, onUploadNew }
                 )
               ) : (
                 <div className="text-center py-8">
-                  <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                  <h3 className="text-lg font-medium mb-2">No Data Extracted</h3>
-                  <p className="text-sm text-muted-foreground">
-                    This file hasn't been processed yet. Go back to the Analysis step to extract data.
+                  <FileCheck className="h-12 w-12 text-loanshark-neutral-dark/40 mx-auto mb-4" />
+                  <h3 className="text-lg font-medium mb-2 text-loanshark-neutral-dark">No Data Extracted</h3>
+                  <p className="text-sm text-loanshark-neutral-dark/60">
+                    This document hasn't been processed yet. Go back to the Analysis step to extract data.
                   </p>
                 </div>
               )}
@@ -223,7 +226,11 @@ export function StepFileManager({ files, onNext, onFileDataUpdate, onUploadNew }
       )}
 
       <div className="flex justify-end pt-4">
-        <Button onClick={onNext} disabled={filesWithData.length === 0}>
+        <Button 
+          onClick={onNext} 
+          disabled={filesWithData.length === 0}
+          className="bg-loanshark-gradient hover:opacity-90 text-white border-0 disabled:opacity-50"
+        >
           Continue to Results
         </Button>
       </div>

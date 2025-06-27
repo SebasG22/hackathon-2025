@@ -12,6 +12,7 @@ import {
   FileIcon as FilePdf,
   Download,
   Trash2,
+  Zap,
 } from "lucide-react"
 import { useDropzone } from "react-dropzone"
 import { Progress } from "@/components/ui/progress"
@@ -49,7 +50,8 @@ export function StepUpload({ onFilesUploaded, onNext, onLoadSampleData, existing
   // Add this useEffect after the useState declarations
   useEffect(() => {
     onFilesUploaded(files)
-  }, [files, onFilesUploaded])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [files])
 
   const onDrop = (acceptedFiles: File[]) => {
     const newFiles = acceptedFiles.map((file) => ({
@@ -80,8 +82,9 @@ export function StepUpload({ onFilesUploaded, onNext, onLoadSampleData, existing
           prev.map((f) => (f.id === fileId ? { ...f, progress: 100, status: "complete" as const } : f)),
         )
         toast({
-          title: "File uploaded successfully",
-          description: "Your document has been loaded correctly.",
+          title: "Document uploaded successfully",
+          description: "Your tax document has been loaded and is ready for analysis.",
+          variant: "success",
         })
       } else {
         setFiles((prev) => prev.map((f) => (f.id === fileId ? { ...f, progress: Math.round(progress) } : f)))
@@ -99,8 +102,9 @@ export function StepUpload({ onFilesUploaded, onNext, onLoadSampleData, existing
     })
 
     toast({
-      title: "File removed",
-      description: "The file has been removed from your uploads.",
+      title: "Document removed",
+      description: "The document has been removed from your uploads.",
+      variant: "warning",
     })
   }
 
@@ -115,8 +119,9 @@ export function StepUpload({ onFilesUploaded, onNext, onLoadSampleData, existing
     setFiles([])
 
     toast({
-      title: "All files cleared",
-      description: "All uploaded files have been removed.",
+      title: "All documents cleared",
+      description: "All uploaded documents have been removed.",
+      variant: "warning",
     })
   }
 
@@ -135,27 +140,28 @@ export function StepUpload({ onFilesUploaded, onNext, onLoadSampleData, existing
     onDropRejected: () => {
       setIsDragging(false)
       toast({
-        title: "File upload error",
+        title: "Upload error",
         description: "Please check file type and size (max 10MB).",
+        variant: "destructive",
       })
     },
   })
 
   const getFileIcon = (file: File) => {
-    if (file.type.startsWith("image/")) return <FileImage className="h-6 w-6 text-blue-500" />
-    if (file.type === "application/pdf") return <FilePdf className="h-6 w-6 text-red-500" />
-    return <FileText className="h-6 w-6 text-amber-500" />
+    if (file.type.startsWith("image/")) return <FileImage className="h-6 w-6 text-loanshark-bolt" />
+    if (file.type === "application/pdf") return <FilePdf className="h-6 w-6 text-loanshark-teal" />
+    return <FileText className="h-6 w-6 text-loanshark-navy" />
   }
 
   const completedFiles = files.filter((f) => f.status === "complete")
   const canProceed = completedFiles.length > 0
 
   return (
-    <Card className="w-full">
-      <CardHeader>
-        <CardTitle className="text-2xl">Upload Documents</CardTitle>
-        <CardDescription>
-          Drag and drop your documents or click to browse. Supported formats: PDF, JPG, PNG, WEBP.
+    <Card className="w-full border-loanshark-neutral-light bg-white shadow-lg">
+      <CardHeader className="bg-loanshark-gradient bg-clip-text">
+        <CardTitle className="text-2xl text-loanshark-neutral-dark">Upload Your Documents</CardTitle>
+        <CardDescription className="text-loanshark-neutral-dark/70">
+          Upload your tax returns, W-2s, and income documents. We'll analyze them in seconds.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -163,27 +169,30 @@ export function StepUpload({ onFilesUploaded, onNext, onLoadSampleData, existing
           whileHover={{ scale: 1.01 }}
           whileTap={{ scale: 0.99 }}
           animate={{
-            borderColor: isDragging ? "rgb(239, 68, 68)" : "rgb(226, 232, 240)",
-            backgroundColor: isDragging ? "rgba(239, 68, 68, 0.05)" : "transparent",
+            borderColor: isDragging ? "#00B5A5" : "#E2E8F0",
+            backgroundColor: isDragging ? "rgba(0, 181, 165, 0.05)" : "transparent",
           }}
           transition={{ duration: 0.2 }}
           className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer flex flex-col items-center justify-center min-h-[200px] ${
-            isDragActive ? "border-primary bg-primary/5" : "border-muted-foreground/25"
+            isDragActive ? "border-loanshark-teal bg-loanshark-teal/5" : "border-loanshark-neutral-dark/25"
           }`}
           {...getRootProps()}
         >
           <input {...getInputProps()} />
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
-            <div className="mb-4 rounded-full bg-primary/10 p-3 inline-block">
-              <Upload className="h-6 w-6 text-primary" />
+            <div className="mb-4 rounded-full bg-loanshark-gradient p-3 inline-block">
+              <Upload className="h-6 w-6 text-white" />
             </div>
-            <h3 className="text-lg font-medium mb-1">Drop your files here</h3>
-            <p className="text-sm text-muted-foreground mb-4">or click to browse</p>
-            <Button>
-              Select Files
+            <h3 className="text-lg font-medium mb-1 text-loanshark-neutral-dark">Drop your documents here</h3>
+            <p className="text-sm text-loanshark-neutral-dark/60 mb-4">or click to browse</p>
+            <Button className="bg-loanshark-gradient hover:opacity-90 text-white border-0">
+              <Zap className="h-4 w-4 mr-2" />
+              Select Documents
             </Button>
           </motion.div>
         </motion.div>
+
+        
 
         <AnimatePresence>
           {files.length > 0 && (
@@ -194,8 +203,11 @@ export function StepUpload({ onFilesUploaded, onNext, onLoadSampleData, existing
               className="space-y-4"
             >
               <div className="flex items-center justify-between">
-                <h3 className="font-medium">Uploaded Files ({files.length})</h3>
-                <Button onClick={clearAllFiles}>
+                <h3 className="font-medium text-loanshark-neutral-dark">Uploaded Documents ({files.length})</h3>
+                <Button 
+                  onClick={clearAllFiles}
+                  className="bg-loanshark-gradient hover:opacity-90 text-white border-0 shadow-sm"
+                >
                   <Trash2 className="h-4 w-4 mr-2" />
                   Clear All
                 </Button>
@@ -207,7 +219,7 @@ export function StepUpload({ onFilesUploaded, onNext, onLoadSampleData, existing
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, x: -10 }}
-                    className="flex items-center gap-4 p-3 rounded-lg border bg-card"
+                    className="flex items-center gap-4 p-3 rounded-lg border border-loanshark-neutral-light bg-loanshark-neutral-light/50"
                   >
                     <div className="flex-shrink-0">
                       {fileWithPreview.previewUrl ? (
@@ -223,23 +235,28 @@ export function StepUpload({ onFilesUploaded, onNext, onLoadSampleData, existing
                       )}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium truncate">{fileWithPreview.file.name}</p>
+                      <p className="text-sm font-medium truncate text-loanshark-neutral-dark">{fileWithPreview.file.name}</p>
                       <div className="flex items-center gap-2 mt-1">
                         <Progress value={fileWithPreview.progress} className="h-1.5" />
-                        <span className="text-xs text-muted-foreground whitespace-nowrap">
+                        <span className="text-xs text-loanshark-neutral-dark/60 whitespace-nowrap">
                           {fileWithPreview.progress}%
                         </span>
                       </div>
-                      {fileWithPreview.extractedData && <p className="text-xs text-green-600 mt-1">✓ Data extracted</p>}
+                      {fileWithPreview.extractedData && <p className="text-xs text-loanshark-teal mt-1">✓ Data extracted</p>}
                     </div>
                     <div className="flex-shrink-0">
                       {fileWithPreview.status === "complete" ? (
-                        <CheckCircle className="h-5 w-5 text-green-500" />
+                        <CheckCircle className="h-5 w-5 text-loanshark-teal" />
                       ) : fileWithPreview.status === "error" ? (
                         <AlertCircle className="h-5 w-5 text-red-500" />
                       ) : null}
                     </div>
-                    <Button onClick={() => removeFile(fileWithPreview.id)}>
+                    <Button 
+                      onClick={() => removeFile(fileWithPreview.id)}
+                      variant="ghost"
+                      size="sm"
+                      className="text-loanshark-neutral-dark/60 hover:text-loanshark-neutral-dark hover:bg-loanshark-neutral-dark/10"
+                    >
                       <X className="h-4 w-4" />
                       <span className="sr-only">Remove file</span>
                     </Button>
@@ -251,7 +268,11 @@ export function StepUpload({ onFilesUploaded, onNext, onLoadSampleData, existing
         </AnimatePresence>
 
         <div className="flex justify-end pt-4">
-          <Button onClick={onNext} disabled={!canProceed} className="min-w-[120px]">
+          <Button 
+            onClick={onNext} 
+            disabled={!canProceed} 
+            className="min-w-[120px] bg-loanshark-gradient hover:opacity-90 text-white border-0 disabled:opacity-50"
+          >
             Continue ({completedFiles.length})
           </Button>
         </div>
