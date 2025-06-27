@@ -29,10 +29,10 @@ type FileWithPreview = {
 type Step = "upload" | "read-file" | "file-manager" | "ai-results"
 
 const steps = [
-  { id: "upload", label: "Upload Documents", description: "Select and upload your real estate or mortgage documents." },
-  { id: "read-file", label: "Document Analysis", description: "AI extraction and review of document data." },
-  { id: "file-manager", label: "Data Review & Edit", description: "Review and edit extracted information before evaluation." },
-  { id: "ai-results", label: "AI Underwriting Results", description: "View the AI-powered underwriting assessment and recommendations." },
+  { id: "upload", label: "Upload Documents", description: "Select and upload your tax returns and income documents." },
+  { id: "read-file", label: "Document Analysis", description: "AI extraction and review of your financial data." },
+  { id: "file-manager", label: "Data Review & Edit", description: "Review and edit extracted information before underwriting." },
+  { id: "ai-results", label: "Underwriting Results", description: "View your mortgage pre-approval assessment and recommendations." },
 ]
 
 export function DocumentProcessor() {
@@ -190,12 +190,12 @@ export function DocumentProcessor() {
                         w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-colors cursor-pointer
                         ${
                           isCompleted
-                            ? "bg-primary text-primary-foreground hover:bg-primary/90"
+                            ? "bg-loanshark-gradient text-white hover:opacity-90"
                             : isActive
-                              ? "bg-primary/20 text-primary border-2 border-primary"
+                              ? "bg-loanshark-teal/20 text-loanshark-teal border-2 border-loanshark-teal"
                               : isAccessible
-                                ? "bg-muted text-muted-foreground hover:bg-muted/80"
-                                : "bg-muted text-muted-foreground cursor-not-allowed opacity-50"
+                                ? "bg-loanshark-neutral-light text-loanshark-neutral-dark hover:bg-loanshark-neutral-light/80"
+                                : "bg-loanshark-neutral-light text-loanshark-neutral-dark/50 cursor-not-allowed opacity-50"
                         }
                       `}
                           onClick={() => isAccessible && handleStepClick(step.id as Step)}
@@ -204,18 +204,18 @@ export function DocumentProcessor() {
                         </div>
                         <div className="min-w-0">
                           {isActive ? (
-                            <BreadcrumbPage className="font-medium truncate">{step.label}</BreadcrumbPage>
+                            <BreadcrumbPage className="font-medium truncate text-loanshark-neutral-dark">{step.label}</BreadcrumbPage>
                           ) : (
                             <BreadcrumbLink
                               className={`$${
-                                isAccessible ? "cursor-pointer hover:text-foreground" : "cursor-not-allowed opacity-50"
-                              }`}
+                                isAccessible ? "cursor-pointer hover:text-loanshark-neutral-dark" : "cursor-not-allowed opacity-50"
+                              } text-loanshark-neutral-dark/70`}
                               onClick={() => isAccessible && handleStepClick(step.id as Step)}
                             >
                               {step.label}
                             </BreadcrumbLink>
                           )}
-                          <p className="text-xs text-muted-foreground mt-1 truncate">{step.description}</p>
+                          <p className="text-xs text-loanshark-neutral-dark/60 mt-1 truncate">{step.description}</p>
                         </div>
                       </div>
                     </BreadcrumbItem>

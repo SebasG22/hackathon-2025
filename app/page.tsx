@@ -2,7 +2,7 @@ import { DocumentProcessor } from "@/components/document-processor"
 
 export default function Home() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center p-4 md:p-8 bg-gradient-to-b from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-900">
+    <main className="flex min-h-screen flex-col items-center justify-center p-4 md:p-8 bg-gradient-to-br from-loanshark-neutral-light via-white to-loanshark-neutral-light">
       <div className="w-full max-w-6xl">
         <div className="flex flex-col items-center text-center mb-8">
           <img src="/LoanSharksLogo.png" alt="LoanShark Logo" className="w-48 h-48 object-contain drop-shadow-lg" />
