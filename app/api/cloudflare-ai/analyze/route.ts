@@ -46,24 +46,7 @@ export async function POST(req: NextRequest) {
 function createAnalysisPrompt(documentData: any) {
   const documentInfo = JSON.stringify(documentData, null, 2);
   const prompt = `
-  Analyze the following document information for mortgage underwriting evaluation:
   ${documentInfo}
-
-
-Important:
-Always present the result in the following format:
-Final DTI Value: XX.XX%
-[Follow with a clear, professional, and friendly explanation that includes how the DTI was derived and what the result means.]
-
-Example Outputs:
-1. Final DTI Value: 39.85%
-The borrower qualifies as the DTI is within the acceptable 43% threshold. This means their total monthly debt payments, relative to their gross monthly income, are considered manageable under standard underwriting guidelines.
-
-2. Final DTI Value: 47.25%
-The borrower's DTI exceeds the standard 43% limit but remains under 50%. This indicates their monthly debt obligations are moderately high compared to income. The application may still be considered if compensating factors—such as strong credit history or available reserves—are present.
-
-3. Final DTI Value: 52.10%
-The borrower does not qualify as the DTI exceeds the 50% limit set by underwriting guidelines. This suggests their debt burden is too high relative to income, posing significant risk unless strong mitigating factors are demonstrated.
   `;
   return prompt;
 }
@@ -74,10 +57,10 @@ async function analyzeWithCloudflareAI(prompt: string): Promise<UnderwritingAnal
     
     // For Next.js API routes, we need to use the Cloudflare AI API directly
     // since we don't have access to the native binding
-    const response = await fetch(`https://api.cloudflare.com/client/v4/accounts/843e8e3c6696126808bce5d6f3271bcf/ai/run/@hf/meta-llama/meta-llama-3-8b-instruct`, {
+    const response = await fetch(`https://api.cloudflare.com/client/v4/accounts/${process.env.CLOUDFLARE_ACCOUNT_ID}/ai/run/@hf/meta-llama/meta-llama-3-8b-instruct`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer 3aU5vpANAeMLt6gjc3LLd1g8E73lHlkUziqDbnXh`
+        'Authorization': `Bearer ${process.env.CLOUDFLARE_API_TOKEN}`
 ,
         'Content-Type': 'application/json',
       },

@@ -155,29 +155,6 @@ export function StepAnalysis({ files, onNext, onAnalysisComplete }: StepAnalysis
 
   return (
     <div className="space-y-6">
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-3 bg-loanshark-neutral-light">
-          <TabsTrigger 
-            value="documents" 
-            className="data-[state=active]:bg-loanshark-gradient data-[state=active]:text-white"
-          >
-            Documents
-          </TabsTrigger>
-          <TabsTrigger 
-            value="analysis" 
-            className="data-[state=active]:bg-loanshark-gradient data-[state=active]:text-white"
-          >
-            Analysis
-          </TabsTrigger>
-          <TabsTrigger 
-            value="ai-analysis" 
-            className="data-[state=active]:bg-loanshark-gradient data-[state=active]:text-white"
-          >
-            AI Insights
-          </TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="documents" className="space-y-6">
           {/* Files Overview */}
           <Card className="w-full border-loanshark-neutral-light bg-white shadow-lg">
             <CardHeader>
@@ -230,7 +207,7 @@ export function StepAnalysis({ files, onNext, onAnalysisComplete }: StepAnalysis
                       </div>
                       <h3 className="text-lg font-medium mb-2 text-loanshark-neutral-dark">Ready to Analyze Your Tax Form</h3>
                       <p className="text-sm text-loanshark-neutral-dark/70 mb-6">
-                        Get instant insights from your IRS Form 1040 in seconds.
+                      Get instant insights from your income documents in seconds.
                       </p>
                       <Button 
                         onClick={startAnalysis} 
@@ -265,59 +242,40 @@ export function StepAnalysis({ files, onNext, onAnalysisComplete }: StepAnalysis
               )}
             </CardContent>
           </Card>
-        </TabsContent>
+    
 
-        <TabsContent value="analysis" className="space-y-6">
-          {!hasAnalysisData && (
-            <Card className="border-loanshark-neutral-light bg-white">
-              <CardContent className="text-center py-8">
-                <AlertTriangle className="h-12 w-12 text-loanshark-neutral-dark/40 mx-auto mb-4" />
-                <h3 className="text-lg font-medium mb-2 text-loanshark-neutral-dark">No Analysis Data Available</h3>
-                <p className="text-sm text-loanshark-neutral-dark/60">Please run the analysis first to view extracted data.</p>
-              </CardContent>
-            </Card>
-          )}
-
+        
           {currentStep === "complete" && (
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-              <Card className="border-loanshark-neutral-light bg-white">
-                <CardContent className="text-center py-8">
-                  {analysisStatus === "success" && (
-                    <>
-                      <div className="mb-4 rounded-full bg-loanshark-teal/10 p-4 inline-block">
-                        <CheckCircle className="h-8 w-8 text-loanshark-teal" />
-                      </div>
-                      <Alert variant="success" className="mb-4">
-                        <AlertDescription>
-                          Your tax data has been extracted and is ready for review.
-                        </AlertDescription>
-                      </Alert>
-                    </>
-                  )}
-                  {analysisStatus === "error" && (
-                    <>
-                      <div className="mb-4 rounded-full bg-red-100 p-4 inline-block">
-                        <AlertTriangle className="h-8 w-8 text-red-600" />
-                      </div>
-                      <Alert variant="destructive" className="mb-4">
-                        <AlertDescription>
-                          There was an error processing your document. Please try again.
-                        </AlertDescription>
-                      </Alert>
-                    </>
-                  )}
-                  <div className="flex gap-3 justify-center">
-                    <Button 
-                      onClick={onNext} 
-                      size="lg"
-                      className="bg-loanshark-gradient hover:opacity-90 text-white border-0"
-                    >
-                      Continue
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
+            <>
+              {!hasAnalysisData ? (
+                <Card className="border-loanshark-neutral-light bg-white">
+                  <CardContent className="text-center py-8">
+                    <AlertTriangle className="h-12 w-12 text-loanshark-neutral-dark/40 mx-auto mb-4" />
+                    <h3 className="text-lg font-medium mb-2 text-loanshark-neutral-dark">No Analysis Data Available</h3>
+                    <p className="text-sm text-loanshark-neutral-dark/60">Please run the analysis first to view extracted data.</p>
+                  </CardContent>
+                </Card>
+              ) : (
+                <Card className="border-loanshark-neutral-light bg-white">
+                  <CardContent className="text-center py-8">
+                    <Alert variant="success" className="mb-4">
+                      <AlertDescription>
+                        Your tax data has been extracted and is ready for review.
+                      </AlertDescription>
+                    </Alert>
+                    <div className="flex gap-3 justify-center">
+                      <Button 
+                        onClick={onNext} 
+                        size="lg"
+                        className="bg-loanshark-gradient hover:opacity-90 text-white border-0"
+                      >
+                        Continue
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+            </>
           )}
 
           {currentStep === "editing" && extractedData && (
@@ -339,25 +297,7 @@ export function StepAnalysis({ files, onNext, onAnalysisComplete }: StepAnalysis
               </>
             )
           )}
-        </TabsContent>
-
-        <TabsContent value="ai-analysis" className="space-y-6">
-          {!hasAnalysisData ? (
-            <Card className="border-loanshark-neutral-light bg-white">
-              <CardContent className="text-center py-8">
-                <AlertTriangle className="h-12 w-12 text-loanshark-neutral-dark/40 mx-auto mb-4" />
-                <h3 className="text-lg font-medium mb-2 text-loanshark-neutral-dark">No Analysis Data Available</h3>
-                <p className="text-sm text-loanshark-neutral-dark/60">Please run the document analysis first to enable AI underwriting analysis.</p>
-              </CardContent>
-            </Card>
-          ) : (
-            <AIAnalysis 
-              documentData={getDocumentDataForAI()} 
-              onAnalysisComplete={handleAIAnalysisComplete}
-            />
-          )}
-        </TabsContent>
-      </Tabs>
+      
     </div>
   )
 }
