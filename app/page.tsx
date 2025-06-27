@@ -16,6 +16,20 @@ export default function Home() {
           <p className="text-xl text-loanshark-neutral-dark/80 max-w-2xl leading-relaxed">
             Pre-approval in seconds for the self-employed. Upload your documents and get instant underwriting insights.
           </p>
+          <div className="flex items-center gap-4 mt-6 text-sm text-loanshark-neutral-dark/60">
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 bg-loanshark-teal rounded-full"></div>
+              <span>Lightning-fast analysis</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 bg-loanshark-navy rounded-full"></div>
+              <span>AI-powered accuracy</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 bg-loanshark-bolt rounded-full"></div>
+              <span>Freelancer-friendly</span>
+            </div>
+          </div>
         </div>
         <DocumentProcessor />
       </div>
