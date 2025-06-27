@@ -78,7 +78,7 @@ Underwriting Rule:
 Use the formula below to calculate the DTI (Debt-to-Income) ratio:
 DTI = (Total Monthly Debt Payments / Gross Monthly Income) × 100
 
-Total Monthly Debt Payments: Extract this from the liabilities section of the URLA (e.g., credit cards, auto loans, student loans, personal loans, etc.).
+Total Monthly Debt Payments must be extracted specifically from the monthlyPayment fields in Sections 2c and 2d of the Uniform Residential Loan Application (URLA), and the total value is the sum of all monthly Payments.
 
 Gross Monthly Income: Use only the income of the occupying borrower(s) (e.g., wages, bonuses, self-employment income).
 
