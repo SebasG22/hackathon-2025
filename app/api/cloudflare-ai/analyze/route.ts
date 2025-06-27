@@ -90,15 +90,15 @@ async function analyzeWithCloudflareAI(prompt: string): Promise<UnderwritingAnal
     
     // For Next.js API routes, we need to use the Cloudflare AI API directly
     // since we don't have access to the native binding
-    const response = await fetch(`https://api.cloudflare.com/client/v4/accounts/${process.env.CLOUDFLARE_ACCOUNT_ID}/ai/run/@hf/meta-llama/meta-llama-3-8b-instruct`, {
+    const response = await fetch(`https://api.cloudflare.com/client/v4/accounts/843e8e3c6696126808bce5d6f3271bcf/ai/run/@cf/mistralai/mistral-small-3.1-24b-instruct`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${process.env.CLOUDFLARE_API_TOKEN}`
+        'Authorization': `Bearer 3aU5vpANAeMLt6gjc3LLd1g8E73lHlkUziqDbnXh`
 ,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: '@hf/meta-llama/meta-llama-3-8b-instruct',
+        model: '@cf/mistralai/mistral-small-3.1-24b-instruct',
         messages: [
           {
             role: 'system',
