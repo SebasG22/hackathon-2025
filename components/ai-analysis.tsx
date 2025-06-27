@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -28,6 +28,15 @@ export function AIAnalysis({ documentData, onAnalysisComplete, onRestart }: AIAn
   const [rawResult, setRawResult] = useState<any>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [hasStarted, setHasStarted] = useState(false);
+
+  // Auto-start analysis when component mounts and documentData is available
+  useEffect(() => {
+    if (documentData && !hasStarted && !isAnalyzing && !parsedResult) {
+      setHasStarted(true);
+      startAnalysis();
+    }
+  }, [documentData, hasStarted, isAnalyzing, parsedResult]);
 
   const startAnalysis = async () => {
     if (!documentData) {
@@ -136,32 +145,27 @@ export function AIAnalysis({ documentData, onAnalysisComplete, onRestart }: AIAn
             </Alert>
           )}
 
-          <div className="flex flex-col sm:flex-row gap-2">
-            <Button
-              onClick={onRestart}
-              className="flex-1 bg-loanshark-gradient hover:opacity-90 text-white border-0"
-              disabled={isAnalyzing}
-            >
-              Start New Assessment
-            </Button>
-            <Button
-              onClick={startAnalysis}
-              className="flex-1 bg-loanshark-gradient hover:opacity-90 text-white border-0"
-              disabled={isAnalyzing || !documentData}
-            >
-              {isAnalyzing ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Analyzing...
-                </>
-              ) : (
-                <>
+          {/* Only show buttons after analysis is complete or if there's an error */}
+          {!isAnalyzing && (parsedResult || error) && (
+            <div className="flex flex-col sm:flex-row gap-2">
+              <Button
+                onClick={onRestart}
+                className="flex-1 bg-loanshark-gradient hover:opacity-90 text-white border-0"
+              >
+                Start New Analysis
+              </Button>
+              {error && (
+                <Button
+                  onClick={startAnalysis}
+                  className="flex-1 bg-loanshark-gradient hover:opacity-90 text-white border-0"
+                  disabled={!documentData}
+                >
                   <Zap className="mr-2 h-4 w-4" />
-                  Check My Income Now
-                </>
+                  Try Again
+                </Button>
               )}
-            </Button>
-          </div>
+            </div>
+          )}
 
           {isAnalyzing && (
             <div className="space-y-2">

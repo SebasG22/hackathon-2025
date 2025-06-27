@@ -49,6 +49,21 @@ function createAnalysisPrompt(documentData: any) {
   Analyze the following document information for mortgage underwriting evaluation:
   ${documentInfo}
 
+
+Important:
+Always present the result in the following format:
+Final DTI Value: XX.XX%
+[Follow with a clear, professional, and friendly explanation that includes how the DTI was derived and what the result means.]
+
+Example Outputs:
+1. Final DTI Value: 39.85%
+The borrower qualifies as the DTI is within the acceptable 43% threshold. This means their total monthly debt payments, relative to their gross monthly income, are considered manageable under standard underwriting guidelines.
+
+2. Final DTI Value: 47.25%
+The borrower's DTI exceeds the standard 43% limit but remains under 50%. This indicates their monthly debt obligations are moderately high compared to income. The application may still be considered if compensating factors—such as strong credit history or available reserves—are present.
+
+3. Final DTI Value: 52.10%
+The borrower does not qualify as the DTI exceeds the 50% limit set by underwriting guidelines. This suggests their debt burden is too high relative to income, posing significant risk unless strong mitigating factors are demonstrated.
   `;
   return prompt;
 }
@@ -59,10 +74,10 @@ async function analyzeWithCloudflareAI(prompt: string): Promise<UnderwritingAnal
     
     // For Next.js API routes, we need to use the Cloudflare AI API directly
     // since we don't have access to the native binding
-    const response = await fetch(`https://api.cloudflare.com/client/v4/accounts/${process.env.CLOUDFLARE_ACCOUNT_ID}/ai/run/@hf/meta-llama/meta-llama-3-8b-instruct`, {
+    const response = await fetch(`https://api.cloudflare.com/client/v4/accounts/843e8e3c6696126808bce5d6f3271bcf/ai/run/@hf/meta-llama/meta-llama-3-8b-instruct`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${process.env.CLOUDFLARE_API_TOKEN}`
+        'Authorization': `Bearer 3aU5vpANAeMLt6gjc3LLd1g8E73lHlkUziqDbnXh`
 ,
         'Content-Type': 'application/json',
       },
@@ -71,39 +86,40 @@ async function analyzeWithCloudflareAI(prompt: string): Promise<UnderwritingAnal
         messages: [
           {
             role: 'system',
-            content: `You are a mortgage underwriter reviewing a loan application. Your task is to determine whether the borrower qualifies based on this underwriting rule:
+            content: `You are a mortgage underwriter reviewing a loan application. Your task is to determine whether the borrower qualifies based on the following underwriting rule:
+
+Underwriting Rule:
 
 "Using only the income of the occupying borrower(s) to calculate the DTI ratio, the maximum allowable DTI ratio is 43%."
 
-Use the following formula to calculate DTI:
+Use the formula below to calculate the DTI (Debt-to-Income) ratio:
 DTI = (Total Monthly Debt Payments / Gross Monthly Income) × 100
 
-Total Monthly Debt Payments: Extracted from the liabilities section of the URLA (e.g., credit cards, auto loans, etc.).
+Total Monthly Debt Payments: Extract this from the liabilities section of the URLA (e.g., credit cards, auto loans, student loans, personal loans, etc.).
 
-Gross Monthly Income: Derived from the income section of the occupying borrower(s) only.
+Gross Monthly Income: Use only the income of the occupying borrower(s) (e.g., wages, bonuses, self-employment income).
 
 Evaluation Criteria:
+If DTI ≤ 43% → The borrower qualifies.
 
-If DTI ≤ 43% → Borrower qualifies.
+If 43% < DTI ≤ 50% → The borrower requires further evaluation of compensating factors (e.g., assets, credit history, loan type).
 
-If 43% < DTI ≤ 50% → Borrower requires further evaluation of compensating factors (e.g., assets, credit history).
+If DTI > 50% → The borrower does not qualify.
 
-If DTI > 50% → Borrower does not qualify.
-
-Response Format (use this structure exactly):
-
+Important:
+Always present the result in the following format:
 Final DTI Value: XX.XX%
-[Professional but friendly sentence explaining the result, including context on how the DTI ratio was derived.]
+[Follow with a clear, professional, and friendly explanation that includes how the DTI was derived and what the result means.]
 
 Example Outputs:
-Final DTI Value: 39.85%
-The borrower qualifies as the DTI is within the acceptable 43% threshold. This means that their total monthly debt payments, relative to their gross monthly income, are manageable under standard underwriting guidelines.
+1. Final DTI Value: 39.85%
+The borrower qualifies as the DTI is within the acceptable 43% threshold. This means their total monthly debt payments, relative to their gross monthly income, are considered manageable under standard underwriting guidelines.
 
-Final DTI Value: 47.25%
-The borrower's DTI exceeds the standard 43% limit but remains under 50%. This suggests that while their monthly debt payments are somewhat high relative to their income, the application may still be considered if strong compensating factors—such as excellent credit or significant cash reserves—are present.
+2. Final DTI Value: 47.25%
+The borrower's DTI exceeds the standard 43% limit but remains under 50%. This indicates their monthly debt obligations are moderately high compared to income. The application may still be considered if compensating factors—such as strong credit history or available reserves—are present.
 
-Final DTI Value: 52.10%
-The borrower does not qualify as the DTI exceeds the 50% limit established by underwriting guidelines. This indicates that the borrower's monthly debt obligations consume more than half of their gross monthly income, which may present too much risk without significant mitigating factors.`
+3. Final DTI Value: 52.10%
+The borrower does not qualify as the DTI exceeds the 50% limit set by underwriting guidelines. This suggests their debt burden is too high relative to income, posing significant risk unless strong mitigating factors are demonstrated.`
           },
           {
             role: 'user',
