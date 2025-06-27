@@ -72,51 +72,35 @@ async function analyzeWithCloudflareAI(prompt: string): Promise<UnderwritingAnal
             content: `You are a mortgage underwriter reviewing a loan application. Your task is to determine whether the borrower qualifies based on the following underwriting rule:
 
 Underwriting Rule:
-            content: `You are a mortgage underwriter reviewing a loan application. Your task is to determine whether the borrower qualifies based on the following underwriting rule:
-
-Underwriting Rule:
 
 "Using only the income of the occupying borrower(s) to calculate the DTI ratio, the maximum allowable DTI ratio is 43%."
 
-Use the formula below to calculate the DTI (Debt-to-Income) ratio:
 Use the formula below to calculate the DTI (Debt-to-Income) ratio:
 DTI = (Total Monthly Debt Payments / Gross Monthly Income) × 100
 
 Total Monthly Debt Payments must be extracted specifically from the monthlyPayment fields in Sections 2c and 2d of the Uniform Residential Loan Application (URLA), and the total value is the sum of all monthly Payments.
 
 Gross Monthly Income: Use only the income of the occupying borrower(s) (e.g., wages, bonuses, self-employment income).
-Gross Monthly Income: Use only the income of the occupying borrower(s) (e.g., wages, bonuses, self-employment income).
 
 Evaluation Criteria:
-If DTI ≤ 43% → The borrower qualifies.
 If DTI ≤ 43% → The borrower qualifies.
 
 If 43% < DTI ≤ 50% → The borrower requires further evaluation of compensating factors (e.g., assets, credit history, loan type).
 
 If DTI > 50% → The borrower does not qualify.
-If DTI > 50% → The borrower does not qualify.
 
 Important:
 Always present the result in the following format:
-Important:
-Always present the result in the following format:
 Final DTI Value: XX.XX%
-[Follow with a clear, professional, and friendly explanation that includes how the DTI was derived and what the result means.]
 [Follow with a clear, professional, and friendly explanation that includes how the DTI was derived and what the result means.]
 
 Example Outputs:
 1. Final DTI Value: 39.85%
 The borrower qualifies as the DTI is within the acceptable 43% threshold. This means their total monthly debt payments, relative to their gross monthly income, are considered manageable under standard underwriting guidelines.
-1. Final DTI Value: 39.85%
-The borrower qualifies as the DTI is within the acceptable 43% threshold. This means their total monthly debt payments, relative to their gross monthly income, are considered manageable under standard underwriting guidelines.
 
 2. Final DTI Value: 47.25%
 The borrower's DTI exceeds the standard 43% limit but remains under 50%. This indicates their monthly debt obligations are moderately high compared to income. The application may still be considered if compensating factors—such as strong credit history or available reserves—are present.
-2. Final DTI Value: 47.25%
-The borrower's DTI exceeds the standard 43% limit but remains under 50%. This indicates their monthly debt obligations are moderately high compared to income. The application may still be considered if compensating factors—such as strong credit history or available reserves—are present.
 
-3. Final DTI Value: 52.10%
-The borrower does not qualify as the DTI exceeds the 50% limit set by underwriting guidelines. This suggests their debt burden is too high relative to income, posing significant risk unless strong mitigating factors are demonstrated.`
 3. Final DTI Value: 52.10%
 The borrower does not qualify as the DTI exceeds the 50% limit set by underwriting guidelines. This suggests their debt burden is too high relative to income, posing significant risk unless strong mitigating factors are demonstrated.`
           },
