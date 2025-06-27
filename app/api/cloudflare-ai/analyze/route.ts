@@ -78,7 +78,11 @@ async function analyzeWithCloudflareAI(prompt: string): Promise<UnderwritingAnal
 Use the following formula to calculate DTI:
 DTI = (Total Monthly Debt Payments / Gross Monthly Income) × 100
 
+<<<<<<< Updated upstream
 Total Monthly Debt Payments: Extracted from the liabilities section of the URLA (e.g., credit cards, auto loans, etc.).
+=======
+Total Monthly Debt Payments must be extracted specifically from the monthlyPayment fields in Sections 2c and 2d of the Uniform Residential Loan Application (URLA), and the total value is the sum of all monthly Payments.
+>>>>>>> Stashed changes
 
 Gross Monthly Income: Derived from the income section of the occupying borrower(s) only.
 
