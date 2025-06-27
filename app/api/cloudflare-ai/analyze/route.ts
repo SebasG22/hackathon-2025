@@ -80,6 +80,14 @@ The borrower's DTI exceeds the standard 43% limit but remains under 50%. This in
 
 3. Final DTI Value: 52.10%
 The borrower does not qualify as the DTI exceeds the 50% limit set by underwriting guidelines. This suggests their debt burden is too high relative to income, posing significant risk unless strong mitigating factors are demonstrated.
+
+Ensure your response:
+1. Is valid text format.
+3. Is in a professional and friendly tone.
+4. Is in a clear and concise manner.
+5. Is in a format that is easy to understand.
+6. Is in a format that is easy to read.
+7. Is in a format that is easy to parse.
   `;
   return prompt;
 }
@@ -90,7 +98,7 @@ async function analyzeWithCloudflareAI(prompt: string): Promise<UnderwritingAnal
     
     // For Next.js API routes, we need to use the Cloudflare AI API directly
     // since we don't have access to the native binding
-    const response = await fetch(`https://api.cloudflare.com/client/v4/accounts/${process.env.CLOUDFLARE_ACCOUNT_ID}/ai/run/@cf/mistralai/mistral-small-3.1-24b-instruct`, {
+    const response = await fetch(`https://api.cloudflare.com/client/v4/accounts/${process.env.CLOUDFLARE_ACCOUNT_ID}/ai/run/@cf/meta/llama-3.3-70b-instruct-fp8-fast`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${process.env.CLOUDFLARE_API_TOKEN}`
@@ -98,7 +106,7 @@ async function analyzeWithCloudflareAI(prompt: string): Promise<UnderwritingAnal
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: '@cf/mistralai/mistral-small-3.1-24b-instruct',
+        model: '@cf/meta/llama-3.3-70b-instruct-fp8-fast',
         messages: [
           {
             role: 'system',
